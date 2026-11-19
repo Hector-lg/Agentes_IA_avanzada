@@ -3,13 +3,12 @@
 | | |
 |---|---|
 | **Equipo** | Héctor Lugo Gabino (A01029811) · Efren Chávez Camacho (A01769533) · Diego Vergara Hernández (A01425660) · Santino Matías Im (A01029622) |
-| **Profesor** | Edoardo Bucelli |
+| **Profesor** |  |
 | **Materia** | Inteligencia artificial avanzada para la ciencia de datos (TC3009C.621) |
 | **Fecha de entrega** | 13/11/2026 |
 | **Versión** | 1.1 (17/11/2026): formato Markdown; alineado con `Manual_Tecnico_Plataforma_BaseCards.md` v0.3 |
 | **Documento técnico** | [`Manual_Tecnico_Plataforma_BaseCards.md`](Manual_Tecnico_Plataforma_BaseCards.md) detalla cómo se construye lo que este PRD pide |
 
-> **Convención.** Lo que el equipo no puede confirmar todavía se declara como **supuesto** (sección 15) y es configurable. Los documentos del proyecto no dejan decisiones abiertas: lo que no se conoce se escribe como supuesto.
 
 ---
 

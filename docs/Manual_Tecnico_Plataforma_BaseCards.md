@@ -1000,6 +1000,52 @@ Versiones vigentes en PyPI al 13-nov-2026. **El archivo `uv.lock` del repo es la
 
 Paquetes de Python del sandbox: `pandas`, `numpy`, `pyarrow`, `duckdb`, `scipy`, `matplotlib`, `python-pptx`, `python-docx`, `openpyxl`, `xlsxwriter`, `reportlab`, `pypdf`, `markdown`, `jinja2`, `skillctl` (propio). Mismas versiones que sección 4.8.3.
 
+#### 4.8.5 Entorno de desarrollo local (venv, pip / uv y modo editable)
+
+> **Desarrollo local vs. Producción:** Este entorno virtual (`.venv`) es **exclusivo para desarrollo local y pruebas unitarias rápidas**. En servidores de prueba, staging o producción (Banamex / Tec), el despliegue se realiza **exclusivamente mediante contenedores Docker / Kubernetes** (secciones 4.13 y 4.13.6). En producción nunca se crea un entorno virtual manual en el host: las imágenes de Docker leen `requirements.txt` y configuran las dependencias de forma aislada y reproducible.
+
+Para el desarrollo interactivo de módulos (como los grafos de LangGraph, subagentes, compiladores de skills o el modelo de ML) y la ejecución de pruebas unitarias (`pytest`), los desarrolladores y colaboradores pueden inicializar un entorno virtual de Python en su máquina host sin necesidad de reconstruir imágenes de Docker en cada cambio de código.
+
+**1. Ubicación y estructura:**
+El entorno virtual (`.venv/`) se crea en la **raíz del repositorio** (nunca dentro de `src/`). El proyecto adopta la convención de empaquetado estándar `src/basecards/`, configurada en `pyproject.toml`.
+
+**2. Creación y activación del entorno virtual:**
+El procedimiento es multiplataforma y opera idénticamente en Windows, Linux o macOS:
+
+- **Windows (PowerShell):**
+  ```powershell
+  python -m venv .venv
+  .venv\Scripts\Activate.ps1
+  ```
+- **Linux / macOS (bash):**
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
+
+**3. Instalación de dependencias base:**
+El repositorio incluye el archivo `requirements.txt` con las versiones fijadas de sección 4.8.3 y soporte de instalación editable:
+
+- **Opción estándar (pip):**
+  ```bash
+  pip install --upgrade pip
+  pip install -r requirements.txt
+  pip install -e .
+  ```
+- **Opción ultrarrápida (uv, recomendada por el equipo):**
+  ```bash
+  uv venv --python 3.12
+  # Activar el .venv según el sistema operativo
+  uv pip install -r requirements.txt
+  uv pip install -e .
+  ```
+
+El comando `pip install -e .` registra el paquete `basecards` en modo editable en el entorno, permitiendo imports limpios (`from basecards.presentaciones.grafo import ...`) desde cualquier script o prueba de `tests/`.
+
+**4. Compatibilidad multiplataforma y alcance:**
+- Todas las dependencias de lógica y modelado (`langgraph`, `pandas`, `duckdb`, `python-pptx`, `scikit-learn`, `pydantic`) son multiplataforma y se instalan de forma nativa en Windows, Linux y macOS.
+- Los servicios de infraestructura pesada o dependencias del sistema (Postgres con pgvector, Redis, Keycloak, LibreOffice sin interfaz gráfica en el runner) se ejecutan en los contenedores Docker definidos en `docker-compose.yml`, permitiendo un desarrollo local desacoplado y pruebas unitarias inmediatas.
+
 ---
 
 ### 4.9 Skills
@@ -1423,6 +1469,8 @@ El túnel lleva también el puerto 8080 porque el login de Keycloak redirige al 
    Copy-Item .env.example .env
    # Editar .env: perfil, modelos, contraseñas (Anexo B)
    ```
+   > **Desarrollo local en Python:** Para trabajar directamente en los módulos de código (LangGraph, skills, pruebas unitarias) sin ejecutar todo el stack de contenedores de inmediato, inicializar el entorno virtual `.venv` siguiendo la **sección 4.8.5** (`pip install -r requirements.txt && pip install -e .`).
+
 7. **Descargar modelos** (única vez; necesita internet):
    ```powershell
    make modelos

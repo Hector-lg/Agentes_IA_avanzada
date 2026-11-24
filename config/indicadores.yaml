@@ -1,0 +1,10 @@
+# S-01: métricas de riesgo son del mes (no acumuladas) por defecto.
+acumulado: false
+
+denominadores:
+  tasa_ncl: ENRAMTS
+  tasa_over30: ENRACCTS
+  tasa_over30_saldo: ENRAMTS
+  utilizacion: CREDITLINESAMTS
+  activacion: ACCOUNTS
+  tasa_recuperacion: GCLAMTS

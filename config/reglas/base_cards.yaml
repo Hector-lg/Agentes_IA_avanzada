@@ -1,0 +1,235 @@
+# Catálogo de reglas y catálogos del cubo Base Cards (Manual §2.6.3).
+# Los valores de STRATEGY_SEGMENT / SCORE_TAG se alinean al diccionario;
+# se pueden regenerar cuando el banco confirme el CSV oficial.
+
+corte_default: 202609
+muestra_filas: 20
+tolerancia_absoluta_montos: 0.01
+tolerancia_relativa_reexpresion: 1.0e-6
+mad_z_umbral: 3.5
+metricas_rango_max: 99999999999999
+
+columnas:
+  - VINTAGE
+  - MOB
+  - STRATEGY
+  - STRATEGY_SEGMENT
+  - PRODUCT
+  - CHANNEL
+  - AGE_TAG
+  - SCORE_TAG
+  - ACCOUNTS
+  - CREDITLINESAMTS
+  - ENRACCTS
+  - OVER30ACCTS
+  - OVER30AMTS
+  - GCLAMTS
+  - NCLAMTS
+  - RECOVERYAMTS
+  - ENRAMTS
+  - REVENUE
+  - EXPENSES_ACQ
+  - EXPENSES_ECM_VAR
+  - EXPENSES_ECM_FIX
+  - EXPENSES_TOTAL
+
+tipos:
+  enteros:
+    - VINTAGE
+    - MOB
+    - ACCOUNTS
+    - CREDITLINESAMTS
+    - ENRACCTS
+    - OVER30ACCTS
+  reales:
+    - OVER30AMTS
+    - GCLAMTS
+    - NCLAMTS
+    - RECOVERYAMTS
+    - ENRAMTS
+    - REVENUE
+    - EXPENSES_ACQ
+    - EXPENSES_ECM_VAR
+    - EXPENSES_ECM_FIX
+    - EXPENSES_TOTAL
+  texto:
+    - STRATEGY
+    - STRATEGY_SEGMENT
+    - PRODUCT
+    - CHANNEL
+    - AGE_TAG
+    - SCORE_TAG
+
+catalogos:
+  PRODUCT:
+    - Affinity
+    - Clasica
+    - Conquista
+    - Costco
+    - Descubre
+    - Explora
+    - Home Depot
+    - Joy
+    - Oro
+    - Platinum
+    - Teleton
+    - Beyond
+  CHANNEL:
+    - Aeropuerto
+    - Affinity
+    - Beyond/Prestige
+    - Branch
+    - Costco
+    - F2F
+    - Home Depot
+    - Internet
+    - One Click
+    - Others
+    - TMK
+    - Turismo
+  AGE_TAG:
+    - "01| Young < 25"
+    - "02| Young 25-30"
+    - "03| Mature >30"
+  STRATEGY:
+    - "14.Recalibration 1.0"
+    - "15.Recalibration 2.0"
+    - "r.Reca champ"
+    - "DARIA 1.6"
+    - "DARIA 2.0"
+
+  # Familia Recalibration (7 segmentos). Incluye ejemplos del PRD/Manual.
+  STRATEGY_SEGMENT_RECA:
+    - "Young < 25"
+    - "Young 25-30"
+    - "Mature >30"
+    - "Brands-NonPayroll-OffUs&LE"
+    - "AAC Off Us Non-Payroll"
+    - "Payroll Core"
+    - "Mass Affluent"
+
+  # Familia DARIA (17 segmentos).
+  STRATEGY_SEGMENT_DARIA:
+    - "LE Thin"
+    - "LE Thick"
+    - "NTC"
+    - "Thin File"
+    - "Thick File"
+    - "Payroll"
+    - "Non-Payroll"
+    - "Brands Core"
+    - "Brands Premium"
+    - "Costco Core"
+    - "Home Depot Core"
+    - "Digital First"
+    - "Branch First"
+    - "Revolver Low"
+    - "Revolver High"
+    - "Transactor"
+    - "New To Bank"
+
+  SCORE_TAG_RECA:
+    - "a.120-139"
+    - "b.140-149"
+    - "c.150-159"
+    - "d.160-164"
+    - "e.165-169"
+    - "f.170-174"
+    - "g.175-179"
+    - "h.180+"
+
+  SCORE_TAG_DARIA:
+    - "c.140-149"
+    - "c.150-154"
+    - "c.155-159"
+    - "c.160-164"
+    - "c.165-169"
+    - "c.170-174"
+    - "c.175-179"
+    - "c.180-189"
+    - "c.190+"
+
+# R-08: STRATEGY permitida por rango de VINTAGE
+strategy_por_vintage:
+  - vintage_min: 202401
+    vintage_max: 202405
+    strategies: ["14.Recalibration 1.0"]
+  - vintage_min: 202406
+    vintage_max: 202507
+    strategies: ["15.Recalibration 2.0"]
+  - vintage_min: 202508
+    vintage_max: 202510
+    strategies: ["r.Reca champ"]
+  - vintage_min: 202511
+    vintage_max: 202607
+    strategies: ["r.Reca champ", "DARIA 1.6"]
+  - vintage_min: 202608
+    vintage_max: 202609
+    strategies: ["r.Reca champ", "DARIA 2.0"]
+
+# R-09: mezcla esperada (solo MOB 0, por ACCOUNTS), banda binomial 99%
+mezcla_strategy:
+  - vintage_min: 202511
+    vintage_max: 202607
+    challenger: "DARIA 1.6"
+    p_esperada: 0.30
+    confianza: 0.99
+  - vintage_min: 202608
+    vintage_max: 202609
+    challenger: "DARIA 2.0"
+    p_esperada: 0.50
+    confianza: 0.99
+
+familias:
+  Reca:
+    strategies:
+      - "14.Recalibration 1.0"
+      - "15.Recalibration 2.0"
+      - "r.Reca champ"
+    segmentos: STRATEGY_SEGMENT_RECA
+    scores: SCORE_TAG_RECA
+  DARIA:
+    strategies:
+      - "DARIA 1.6"
+      - "DARIA 2.0"
+    segmentos: STRATEGY_SEGMENT_DARIA
+    scores: SCORE_TAG_DARIA
+
+severidades:
+  R-01: critica
+  R-02: critica
+  R-03: alta
+  R-04: alta
+  R-05: alta
+  R-06: alta
+  R-07: alta
+  R-08: alta
+  R-09: media
+  R-10: alta
+  R-11: alta
+  R-12: alta
+  R-13: critica
+  R-14: critica
+  R-15: critica
+  R-16: alta
+  R-17: critica
+  R-18: alta
+  P-01: media
+  P-02: media
+  P-03: media
+  P-04: media
+  P-05: baja
+  P-06: baja
+  P-07: media
+  N-01: info
+  C-01: alta
+  C-02: media
+  C-03: media
+  K-01: alta
+
+# Fallas de esquema que dictaminan "no apto" de inmediato
+criticas_esquema:
+  - R-01
+  - R-02
+  - R-13
+  - R-18

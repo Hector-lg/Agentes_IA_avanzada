@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": 1,
+  "diccionario": "base_cards@2026-11",
+  "granularidad": "una fila por llave de cohorte (7 dimensiones) x MOB",
+  "llave": [
+    "VINTAGE",
+    "STRATEGY",
+    "STRATEGY_SEGMENT",
+    "PRODUCT",
+    "CHANNEL",
+    "AGE_TAG",
+    "SCORE_TAG",
+    "MOB"
+  ],
+  "columnas": {
+    "VINTAGE": {
+      "tipo": "entero",
+      "rol": "dimension",
+      "min": 202401,
+      "max": 202609,
+      "descripcion": "Mes de originación en formato AAAAMM"
+    },
+    "STRATEGY": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "catalogo": "strategy"
+    },
+    "STRATEGY_SEGMENT": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "descripcion": "Catálogo dependiente de STRATEGY; se resuelve con el diccionario vigente"
+    },
+    "PRODUCT": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "catalogo": "product"
+    },
+    "CHANNEL": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "catalogo": "channel"
+    },
+    "AGE_TAG": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "catalogo": "age_tag"
+    },
+    "SCORE_TAG": {
+      "tipo": "catalogo",
+      "rol": "dimension",
+      "descripcion": "Catálogo dependiente de STRATEGY; se resuelve con el diccionario vigente"
+    },
+    "MOB": {
+      "tipo": "entero",
+      "rol": "dimension",
+      "min": 0,
+      "max": 32
+    },
+    "ACCOUNTS": {
+      "tipo": "entero",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "CREDITLINESAMTS": {
+      "tipo": "entero",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "ENRACCTS": {
+      "tipo": "entero",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "OVER30ACCTS": {
+      "tipo": "entero",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "OVER30AMTS": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "GCLAMTS": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "NCLAMTS": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "RECOVERYAMTS": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "ENRAMTS": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "REVENUE": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "EXPENSES_ACQ": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "EXPENSES_ECM_VAR": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "EXPENSES_ECM_FIX": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    },
+    "EXPENSES_TOTAL": {
+      "tipo": "real",
+      "rol": "metrica",
+      "min": 0,
+      "max": 99999999999999
+    }
+  },
+  "catalogos": {
+    "strategy": [
+      "14.Recalibration 1.0",
+      "15.Recalibration 2.0",
+      "r.Reca champ",
+      "DARIA 1.6",
+      "DARIA 2.0"
+    ],
+    "product": [
+      "Affinity",
+      "Clasica",
+      "Conquista",
+      "Costco",
+      "Descubre",
+      "Explora",
+      "Home Depot",
+      "Joy",
+      "Oro",
+      "Platinum",
+      "Teleton",
+      "Beyond"
+    ],
+    "channel": [
+      "Aeropuerto",
+      "Affinity",
+      "Beyond/Prestige",
+      "Branch",
+      "Costco",
+      "F2F",
+      "Home Depot",
+      "Internet",
+      "One Click",
+      "Others",
+      "TMK",
+      "Turismo"
+    ],
+    "age_tag": [
+      "01| Young < 25",
+      "02| Young 25-30",
+      "03| Mature >30"
+    ]
+  },
+  "reglas": [
+    {
+      "id": "R-14",
+      "severidad": "critica",
+      "expresion": "NCLAMTS = GCLAMTS - RECOVERYAMTS",
+      "tolerancia": 0.01
+    },
+    {
+      "id": "R-15",
+      "severidad": "critica",
+      "expresion": "EXPENSES_TOTAL = EXPENSES_ACQ + EXPENSES_ECM_VAR + EXPENSES_ECM_FIX",
+      "tolerancia": 0.01
+    },
+    {
+      "id": "R-16",
+      "severidad": "alta",
+      "expresion": "EXPENSES_ACQ = 0",
+      "condicion": "MOB != 0"
+    }
+  ]
+}

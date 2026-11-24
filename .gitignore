@@ -221,3 +221,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Notas y briefs locales de aprendizaje
+explicaciones/
+
+# Notas de aprendizaje y configuracion local de OpenCode
+explicaciones/
+AGENTS.md
+opencode.json

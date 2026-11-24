@@ -788,7 +788,7 @@ Toda escritura guarda el estado anterior, de modo que `deshacer(accion_id)` la r
 | Canal | Tecnología | Quién lo usa | Ejemplo |
 |---|---|---|---|
 | Herramientas en proceso | Funciones Python tipadas con Pydantic dentro del worker | Todos los agentes | `cubo_metricas_cohorte(...)` |
-| Sandbox | Contenedor Debian efímero con Python 3.12 y `bash` 5, lanzado por `sandbox-runner` | Presentaciones, Copiloto | `run_python`, conversión a PDF |
+| Sandbox | Contenedor Debian efímero con Python 3.13 y `bash` 5, lanzado por `sandbox-runner` | Presentaciones, Copiloto | `run_python`, conversión a PDF |
 | Administración | PowerShell 7 (Windows) o bash (Linux) + `make` + `docker compose` | Personas (admin), nunca el agente | `make validar-corte CORTE=202609` |
 
 **El agente no tiene una terminal general.** No existe una herramienta `bash(cmd)` con texto libre. Esto cierra la vía más común de daño por inyección de prompts.
@@ -967,7 +967,7 @@ En la bitácora cada acción se registra como "**agente X actuando en nombre de 
 #### 4.8.2 Imágenes de contenedor
 | Imagen | Etiqueta |
 |---|---|
-| Base de Python | `python:3.12-slim-trixie` |
+| Base de Python | `python:3.13-slim-trixie` |
 | Postgres + pgvector | `pgvector/pgvector:0.8.7-pg17-trixie` |
 | Redis | `redis:8.10.3` |
 | Ollama | `ollama/ollama:0.40.16` |
@@ -977,7 +977,7 @@ En la bitácora cada acción se registra como "**agente X actuando en nombre de 
 En producción se fija además el digest (`@sha256:…`) de cada imagen en `infra/images.lock`.
 
 #### 4.8.3 Python
-**Versión: 3.12.** Las librerías elegidas exigen ≥ 3.11 (pandas 3, scikit-learn 1.9, FastAPI) y Presidio exige < 3.15. Se usa 3.12 porque es la versión con más ruedas precompiladas para todo el stack.
+**Versión: 3.13.** Las librerías elegidas exigen ≥ 3.11 (pandas 3, scikit-learn 1.9, FastAPI) y Presidio exige < 3.15. Se usa 3.13 por estabilidad y por la disponibilidad de ruedas precompiladas del stack.
 
 Versiones vigentes en PyPI al 13-nov-2026. **El archivo `uv.lock` del repo es la fuente de verdad.** El día 1 se corre `uv lock`; si dos versiones resultan incompatibles, gana lo que resuelva `uv` y se actualiza esta tabla.
 
@@ -1034,7 +1034,7 @@ El repositorio incluye el archivo `requirements.txt` con las versiones fijadas d
   ```
 - **Opción ultrarrápida (uv, recomendada por el equipo):**
   ```bash
-  uv venv --python 3.12
+  uv venv --python 3.13
   # Activar el .venv según el sistema operativo
   uv pip install -r requirements.txt
   uv pip install -e .
@@ -1064,7 +1064,7 @@ skills/
 │   │   ├── schema.json       # campos, tipos y catálogos (generado del diccionario)
 │   │   ├── metrics.yaml      # fórmulas de indicadores (DSL restringido)
 │   │   ├── charts.yaml       # qué campo va en qué gráfica
-│   │   ├── template.pptx     # layouts y branding
+│   │   ├── template.pptx     # opcional: si falta se usa config/branding/template_banamex.pptx
 │   │   ├── metadata.json     # versión, autor, aprobador, fecha, hash
 │   │   ├── ejemplos/         # paquete de ejemplo + deck esperado
 │   │   └── tests/            # pruebas que corre skillctl test
@@ -1075,14 +1075,16 @@ skills/
 └── vendor/                   # skills externas revisadas, con commit fijo en LOCK
 ```
 
+**Carga en runtime.** El catálogo se lee del sistema de archivos, no de `importlib.resources`: la raíz se toma de `BASECARDS_SKILLS_DIR` y, si no está definida, de `<repo>/skills`. El encabezado de `SKILL.md` se interpreta con `yaml.safe_load`; no se requiere una dependencia adicional para el frontmatter. La plantilla base y la paleta viven en `config/branding/banamex.yaml` y `config/branding/template_banamex.pptx`; una skill solo trae `template.pptx` si necesita una variante propia.
+
 #### 4.9.2 Skills de internet que conviene usar
 
 | Skill / recurso | Origen | Licencia | Para qué en este proyecto | Cómo se usa |
 |---|---|---|---|---|
 | `pptx` | [anthropics/skills](https://github.com/anthropics/skills) | Apache 2.0 | Referencia del flujo crear → renderizar miniaturas → revisar visualmente → corregir | Se adapta su procedimiento a `pptx_ensamblar` + `documento_miniaturas`. No se copia tal cual: está escrita para Claude y sus scripts asumen herramientas que no están en el sandbox |
-| `xlsx`, `pdf`, `docx` | anthropics/skills | Apache 2.0 | Base de las skills de formato `formato-docx`, `formato-xlsx` y `formato-pdf` del MVP (sección 4.10.3) | Igual: como referencia de procedimiento |
+| `xlsx`, `pdf`, `docx` | anthropics/skills | Apache 2.0 | Referencia para las reglas de estilo por formato que aplica el código desde `config/branding/` (sección 4.10.3) | Igual: como referencia de procedimiento |
 | `skill-creator` y `template-skill` | anthropics/skills | Apache 2.0 | Base del proceso para que el agente genere skills nuevas (sección 4.9.3) | Se adapta el `SKILL.md` a nuestras reglas |
-| `brand-guidelines` | anthropics/skills | Apache 2.0 | Patrón para codificar el manual de marca de Banamex como skill | Se reemplaza el contenido por el manual del banco |
+| `brand-guidelines` | anthropics/skills | Apache 2.0 | Referencia de qué datos de marca conviene codificar; no se instala como skill | El contenido se traslada a `config/branding/banamex.yaml` y al master de la plantilla |
 | Especificación Agent Skills | agentskills.io | Abierta | Formato del encabezado y del campo opcional `allowed-tools` | El cargador valida cada `SKILL.md` contra la especificación |
 | Servidor MCP para Jira Server/DC (p. ej. `mcp-atlassian`, comunitario) | GitHub | Según el proyecto; se revisa antes de usarlo | Solo si el banco ya tiene Jira on-prem | Requiere revisión de seguridad; si no, se usa el adaptador `jira` en Python |
 
@@ -1098,7 +1100,7 @@ skills/
 3. **Esquema.** Regenera `schema.json` desde el diccionario vigente + los campos nuevos detectados (tipos inferidos y catálogo observado).
 4. **Métricas y gráficas.** Propone entradas nuevas en `metrics.yaml` y `charts.yaml` usando solo el DSL permitido (sección 4.9.4).
 5. **Narrativa.** Redacta el `SKILL.md`: secciones, orden y qué mensaje lleva cada una.
-6. **Template.** Reutiliza `template.pptx` aprobado; solo puede cambiar el orden de layouts o duplicar uno existente. No crea branding nuevo.
+6. **Template.** Reutiliza la plantilla aprobada de la skill o, si no trae una, `config/branding/template_banamex.pptx`; solo puede cambiar el orden de layouts o duplicar uno existente. No crea branding nuevo.
 7. **Prueba.** Corre `skillctl validate` y `skillctl test` en el sandbox y genera un deck de ejemplo con el paquete actual.
 8. **Aprobación.** El grafo se pausa (`interrupt`). El analista ve el diff y el deck de ejemplo; el `lider_riesgo` aprueba (S-09).
 9. **Versionado.** Al aprobar, el sistema mueve la skill a `aprobadas/`, sube la versión (SemVer: campos nuevos = menor; cambio de fórmula = mayor), escribe `metadata.json`, hace commit y etiqueta `skill/<nombre>@<versión>`. Revertir = volver a la etiqueta anterior (RB-08).
@@ -1163,7 +1165,7 @@ El proceso de sección 4.10.1 es el mismo para cualquier formato: validar → ca
 | `.png`, `.svg` | `matplotlib` | Gráficas sueltas | Los datos de la gráfica se guardan en un `.json` al lado |
 | `.odt`, `.ods`, `.odp` | LibreOffice (conversión) | Si el banco usa formatos abiertos | Se verifica el archivo original antes de convertir |
 
-**Skills de formato.** Además de las de negocio, hay cuatro skills de procedimiento: `formato-pptx`, `formato-docx`, `formato-xlsx` y `formato-pdf`. Definen reglas de estilo y de revisión por formato (márgenes, estilos de tabla, nombres de hoja, fuentes) y se basan en las de anthropics/skills (sección 4.9.2). Una skill de negocio usa una o varias de ellas.
+**Branding sin skills de formato.** No hay skills de procedimiento por formato. El branding visual (paleta, tipografía, márgenes, layouts y estilos de `matplotlib`) vive en `config/branding/banamex.yaml` y en el master de `config/branding/template_banamex.pptx`; el código lo aplica de forma determinista sin consumir contexto del LLM. En `skills/aprobadas/` solo viven las skills de negocio (`seguimiento-cosechas` y `rentabilidad` en el MVP), y cada una integra sus reglas ejecutivas de redacción en `SKILL.md`.
 
 **Fuera de la lista.** Formatos propietarios de herramientas específicas (`.pbix` de Power BI, `.twbx` de Tableau, `.vsdx` de Visio) no se generan. Si se necesitan, el agente entrega los datos en `.csv`/`.xlsx` listos para cargarse en esa herramienta.
 
@@ -2243,18 +2245,30 @@ allowed-tools: paquete_validar metricas_calcular graficas_generar pptx_ensamblar
 salidas: [pptx, pdf]
 ---
 # Seguimiento de cosechas
+
+## Fuentes de verdad
+- Columnas, tipos, catálogos y reglas del paquete: `schema.json`.
+- Fórmulas, denominadores y formatos: `metrics.yaml`.
+- Gráficas, ejes, series, tablas y topes de filas: `charts.yaml`.
+- Branding, layouts y estilos: `config/branding/banamex.yaml` y
+  `config/branding/template_banamex.pptx`.
+- Si `paquete_validar` detecta campos o catálogos nuevos, propón un borrador con
+  `skill_proponer_borrador`; no edites la skill aprobada ni copies esos datos aquí.
+
 ## Secciones (en este orden)
-1. Portada — título, fecha de corte.
+1. Portada — título y fecha de corte, sin métricas.
 2. Resumen ejecutivo — 3 mensajes: la cohorte con mayor desviación, la tendencia de
    Over30 de las cosechas recientes y la comparación champion vs. challenger.
 3. Volumen por cosecha — gráfica `volumen_cosecha`.
 4. Curvas Over30 vs. esperada — gráfica `curvas_over30`.
 5. Curvas NCL vs. esperada — gráfica `curvas_ncl`.
-6. Cohortes fuera de intervalo — tabla `fuera_intervalo` (máx. 10 filas).
-7. Siguientes pasos — máx. 3 viñetas, sin cifras nuevas.
+6. Cohortes fuera de intervalo — tabla `fuera_intervalo`.
+7. Siguientes pasos — sin cifras nuevas.
+
 ## Reglas de redacción
-- Usa solo marcadores {{m.*}} para cifras.
-- Máximo 40 palabras por viñeta, 4 viñetas por diapositiva.
+- **Action titles obligatorios:** cada título de una diapositiva de contenido es una oración completa que resume el hallazgo; nunca una etiqueta genérica.
+- **Densidad ejecutiva:** máximo 1 gráfica o 1 tabla por diapositiva y máximo 4 viñetas de 40 palabras o menos.
+- **Cero números literales:** toda cifra va con marcadores `{{m.<metrica>.<cohorte>.<mob>|<formato>}}`; si escribes un número, el texto se rechaza.
 - No compares cosechas con distinto MOB máximo sin decirlo.
 ```
 
@@ -2265,9 +2279,11 @@ salidas: [pptx, pdf]
   "version": "1.0.0",
   "autor": "integrante3",
   "aprobador": "lider_riesgo1",
-  "fecha_aprobacion": "2026-11-27",
+  "fecha_aprobacion": "2026-11-24",
   "diccionario": "base_cards@2026-11",
-  "hash_template": "sha256:…",
+  "hash_template": null,
+  "hash_contenido": "sha256:061f71c8bd7a53694999287fcf217f6e4fda1d842ae3a9d089fa4d4626d630ea",
+  "salidas": ["pptx", "pdf"],
   "cambios": "Versión inicial"
 }
 ```

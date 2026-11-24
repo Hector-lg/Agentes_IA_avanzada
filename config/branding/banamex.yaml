@@ -1,0 +1,48 @@
+version: 1
+nombre: Banamex
+plantilla_base: template_banamex.pptx
+
+layouts:
+  - Portada
+  - Titulo_y_Grafica
+  - Dos_Columnas
+  - Tabla
+  - Cierre
+
+diapositiva:
+  ancho_pulgadas: 13.333
+  alto_pulgadas: 7.5
+
+paleta:
+  primario: "#104B84"
+  acento: "#EC2023"
+  texto: "#1A1F2C"
+  fondo: "#FFFFFF"
+  neutro_claro: "#F2F4F7"
+  positivo: "#1E7B4F"
+  negativo: "#B3261E"
+
+tipografia:
+  familia: "Liberation Sans"
+  tamano_titulo: 24
+  tamano_cuerpo: 14
+  tamano_pie: 9
+
+margenes_pulgadas:
+  izquierda: 0.6
+  derecha: 0.6
+  superior: 0.4
+  inferior: 0.4
+
+graficas:
+  dpi: 200
+  estilo_matplotlib: bmh
+  paleta: [primario, acento, positivo, negativo]
+  fuente_datos: "Cubo Base Cards"
+
+reglas:
+  action_titles: true
+  max_graficas_por_diapositiva: 1
+  max_vinetas: 4
+  max_palabras_vineta: 40
+  max_diapositivas: 20

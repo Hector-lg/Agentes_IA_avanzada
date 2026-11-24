@@ -1,0 +1,40 @@
+version: 1
+skill: seguimiento-cosechas
+
+filtro_exposicion:
+  columna: ENRACCTS
+  min: 200
+
+metricas:
+  tasa_over30:
+    descripcion: "Cuentas en Over30 entre cuentas con saldo"
+    numerador: {sum: OVER30ACCTS}
+    denominador: {sum: ENRACCTS}
+    formato: pct2
+  tasa_ncl:
+    descripcion: "Pérdida neta entre saldo expuesto"
+    numerador: {sum: NCLAMTS}
+    denominador: {sum: ENRAMTS}
+    formato: pct2
+  volumen:
+    descripcion: "Cuentas originadas por cosecha"
+    expresion: "sum(ACCOUNTS)"
+    formato: int
+  saldo:
+    descripcion: "Saldo expuesto de la cohorte"
+    expresion: "sum(ENRAMTS)"
+    formato: mxn_millones
+  margen:
+    descripcion: "Margen de la cohorte"
+    expresion: "sum(REVENUE) - sum(NCLAMTS) - sum(EXPENSES_TOTAL)"
+    formato: mxn_millones
+
+esperadas:
+  fuente: modelo_curva_esperada
+  alias_modelo: champion
+  indicadores:
+    - {metrica: tasa_over30, nombre: over30}
+    - {metrica: tasa_ncl, nombre: ncl}
+  cuantiles: [q05, q50, q95]
+
+agrupaciones: [VINTAGE, STRATEGY, MOB]

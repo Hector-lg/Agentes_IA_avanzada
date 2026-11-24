@@ -1,0 +1,48 @@
+version: 1
+
+estilos:
+  dpi: 200
+  fuente_datos: "Cubo Base Cards, corte {corte}"
+  paleta: [primario, acento]
+
+graficas:
+  volumen_cosecha:
+    tipo: columnas
+    nativa: true
+    titulo: "Cuentas por cosecha"
+    eje_x: VINTAGE
+    series:
+      - {metrica: volumen, agrupacion: [VINTAGE], etiqueta: "Cuentas"}
+
+  curvas_over30:
+    tipo: abanico
+    nativa: false
+    motor: matplotlib
+    titulo: "Tasa Over30 vs. curva esperada"
+    eje_x: MOB
+    series:
+      - {metrica: tasa_over30, agrupacion: [VINTAGE, MOB], etiqueta: "Observado"}
+      - {metrica: q05_over30, agrupacion: [VINTAGE, MOB], banda: inferior}
+      - {metrica: q50_over30, agrupacion: [VINTAGE, MOB], banda: central}
+      - {metrica: q95_over30, agrupacion: [VINTAGE, MOB], banda: superior}
+
+  curvas_ncl:
+    tipo: abanico
+    nativa: false
+    motor: matplotlib
+    titulo: "Tasa NCL vs. curva esperada"
+    eje_x: MOB
+    series:
+      - {metrica: tasa_ncl, agrupacion: [VINTAGE, MOB], etiqueta: "Observado"}
+      - {metrica: q05_ncl, agrupacion: [VINTAGE, MOB], banda: inferior}
+      - {metrica: q50_ncl, agrupacion: [VINTAGE, MOB], banda: central}
+      - {metrica: q95_ncl, agrupacion: [VINTAGE, MOB], banda: superior}
+
+  fuera_intervalo:
+    tipo: tabla
+    nativa: true
+    titulo: "Cohortes fuera del intervalo esperado"
+    origen: modelo_curva_esperada
+    columnas: [VINTAGE, STRATEGY, MOB, observado, q50, desviacion]
+    max_filas: 10
+    filtro: "fuera_de_intervalo = true"

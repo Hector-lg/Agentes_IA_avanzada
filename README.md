@@ -49,7 +49,7 @@ make smoke
 Esta sección es para quienes van a desarrollar código en `src/`, construir subagentes o agregar skills.
 
 ### Requisitos previos
-- **Python 3.12 o 3.13** instalado en tu sistema operativo.
+- **Python 3.13** instalado en tu sistema operativo.
 - **Git**.
 - *(Opcional pero recomendado)* `uv` para gestión ultra rápida de paquetes.
 
@@ -96,7 +96,7 @@ pip install -e .
 #### Alternativa ultra rápida con `uv`:
 Si tienes instalado [`uv`](https://docs.astral.sh/uv/):
 ```bash
-uv venv --python 3.12
+uv venv --python 3.13
 # Activar según tu OS (.venv\Scripts\Activate.ps1 o source .venv/bin/activate)
 uv pip install -r requirements.txt
 uv pip install -e .

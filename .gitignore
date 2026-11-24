@@ -222,6 +222,10 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Datos locales de entrada (solo se versiona el contrato)
+data/*
+!data/README.md
+
 # Notas y briefs locales de aprendizaje
 explicaciones/
 

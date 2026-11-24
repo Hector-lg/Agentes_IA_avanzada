@@ -11,8 +11,10 @@ import pytest
 from basecards.herramientas.metricas import (
     MetricaError,
     compilar_expresion,
+    compilar_metrica,
     metricas_calcular,
 )
+from basecards.herramientas.skills import Agregado, Metrica
 
 COLUMNAS = {"ACCOUNTS", "REVENUE", "NCLAMTS", "EXPENSES_TOTAL", "ENRACCTS"}
 RAIZ_REPO = Path(__file__).resolve().parents[2]
@@ -102,6 +104,18 @@ def test_rechaza_tokens_extra() -> None:
     with pytest.raises(MetricaError) as exc:
         compilar_expresion("sum(ACCOUNTS) DROP", COLUMNAS)
     assert _codigo(exc) == "E-MET-011"
+
+
+def test_rechaza_identificador_peligroso_en_agregado() -> None:
+    columna = 'X" ; DROP TABLE base_cards --'
+    metrica = Metrica(
+        numerador=Agregado(sum=columna),
+        denominador=Agregado(sum="ACCOUNTS"),
+        formato="pct2",
+    )
+    with pytest.raises(MetricaError) as exc:
+        compilar_metrica(metrica, {"ACCOUNTS", columna})
+    assert _codigo(exc) == "E-MET-012"
 
 
 # ---------------------------------------------------------------------------

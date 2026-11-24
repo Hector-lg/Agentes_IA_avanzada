@@ -26,7 +26,7 @@ FUNCIONES_DSL = frozenset({"sum", "count"})
 FORMATOS_VALOR = frozenset({"pct1", "pct2", "mxn", "mxn_millones", "int"})
 
 _COHORTE_RE = re.compile(r"^(?:\d{6}|todas)$")
-_TABLA_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_IDENTIFICADOR_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _SUFIJOS_TABLA = frozenset({".parquet", ".csv"})
 _SUFIJOS_DUCKDB = frozenset({".duckdb", ".db"})
 
@@ -235,7 +235,13 @@ def _sql(nodo: _Nodo) -> str:
 
 def _agregado_sql(agregado: Agregado, columnas: set[str]) -> str:
     columna = agregado.sum if agregado.sum is not None else agregado.count
-    if columna is None or columna not in columnas:
+    if columna is None or not _IDENTIFICADOR_RE.fullmatch(columna):
+        raise MetricaError(
+            "E-MET-012",
+            f"columna inválida {columna!r} en metrics.yaml",
+            "metrics.yaml",
+        )
+    if columna not in columnas:
         raise MetricaError(
             "E-MET-012",
             f"columna inexistente {columna!r} en el schema de la skill",
@@ -343,7 +349,7 @@ def _ruta_datos(datos: Path | str | None) -> Path:
 
 def _tabla_duckdb(conexion: duckdb.DuckDBPyConnection, tabla: str | None) -> str:
     if tabla is not None:
-        if not _TABLA_RE.fullmatch(tabla):
+        if not _IDENTIFICADOR_RE.fullmatch(tabla):
             raise MetricaError("E-MET-020", f"nombre de tabla inválido {tabla!r}", "datos")
         return tabla
     filas = conexion.execute("SHOW TABLES").fetchall()
@@ -356,7 +362,7 @@ def _tabla_duckdb(conexion: duckdb.DuckDBPyConnection, tabla: str | None) -> str
             "datos",
         )
     nombre = filas[0][0]
-    if not isinstance(nombre, str) or not _TABLA_RE.fullmatch(nombre):
+    if not isinstance(nombre, str) or not _IDENTIFICADOR_RE.fullmatch(nombre):
         raise MetricaError("E-MET-020", f"nombre de tabla inválido {nombre!r}", "datos")
     return nombre
 
@@ -471,10 +477,10 @@ def metricas_calcular(
         filtros.append(f'"VINTAGE" = {int(cohorte)}')
     exposicion = documento.filtro_exposicion
     if exposicion is not None:
-        if exposicion.columna not in nombres:
+        if not _IDENTIFICADOR_RE.fullmatch(exposicion.columna) or exposicion.columna not in nombres:
             raise MetricaError(
                 "E-MET-012",
-                f"columna de exposición inexistente {exposicion.columna!r}",
+                f"columna de exposición inválida {exposicion.columna!r}",
                 "metrics.yaml",
             )
         if not math.isfinite(exposicion.min):

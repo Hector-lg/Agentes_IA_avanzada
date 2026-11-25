@@ -35,27 +35,6 @@ Cubre la plataforma común, el núcleo de analítica (modelo de ML, API y dashbo
 ### 1.3 Audiencia
 Equipo de desarrollo, área de Infraestructura/Seguridad de Banamex, Riesgo de Modelos y el profesor del módulo.
 
-### 1.4 Cambios técnicos respecto al PRD
-Este manual concreta o cambia decisiones que el PRD dejaba abiertas. Cada cambio tiene su justificación en sección 3.9.
-
-| Tema | POC y planteamiento inicial | Este manual (y PRD v1.1) | Motivo |
-|---|---|---|---|
-| LLM | Claude vía Bedrock/Vertex, o modelo on-prem | **Modelo de pesos abiertos servido localmente con Ollama** (vLLM en producción). No se usa ninguna API de LLM externa | Exigencia del banco: privacidad. Ningún dato sale de la máquina ni del perímetro |
-| Orquestador | Claude Agent SDK o LangGraph | **LangGraph** | Funciona con cualquier LLM; tiene grafos explícitos, checkpoints, pausas para aprobación humana y ejecución en paralelo |
-| Tickets | Instancia de Jira de pruebas | **Tickets agnósticos**: bandeja local por usuario (Postgres) + conectores MCP o REST hacia la herramienta que use el banco (sección 3.10) | No se sabe qué herramienta usa Banamex; además Jira Data Center ya no se licencia a clientes nuevos desde el 30-mar-2026 |
-| Observabilidad LLM | Langfuse / OpenTelemetry | **MLflow 3 (tracing) + OpenTelemetry** en el MVP; Langfuse opcional en producción | MLflow ya está en el stack; Langfuse self-hosted agrega ClickHouse y almacenamiento S3 |
-| Almacenamiento de objetos | "almacenamiento de objetos" | Volumen local en el MVP (abstracción `fsspec`); S3 del banco en producción | Menos contenedores en el MVP, mismo código |
-| Modelo de riesgo | POC: regresión / Random Forest; PRD: LightGBM | **LightGBM** (principal) + árbol de regresión (baseline interpretable) | Alineado al PRD |
-| Copiloto de análisis | Solo en el POC | Se incluye como **tercer agente del sistema (Must)**, a cargo del Integrante 4 | Decisión del equipo; reutiliza las mismas herramientas y no agrega infraestructura |
-| Formatos de salida | `.pptx` (el PRD también menciona `.pdf`) | **Formatos estándar de oficina y datos**: `.pptx`, `.docx`, `.xlsx`, `.pdf`, `.csv`, `.parquet`, `.json`, `.md`, `.html`, `.png`, `.svg` y formatos OpenDocument (sección 4.10.3) | Decisión del equipo |
-| Datos | Solo diccionario | **CSV de ~1 millón de filas** con las 22 variables; es la fuente del MVP (sección 2.6.5) | Ya disponible |
-| Equipo | 3 o 4 personas | **4 integrantes**; el Integrante 4 lleva la plataforma común y el Copiloto | Respuesta del equipo |
-| Orquestación | Un supervisor que reparte el trabajo entre agentes | **Pipeline de orden fijo**; el supervisor solo clasifica mensajes de texto libre | El orden se conoce de antemano; un supervisor con LLM solo agrega llamadas al modelo para redescubrirlo |
-| Reglas del flujo | Instrucciones dentro de los prompts | **Guardrails en código** (sección 3.6.2) | Una instrucción en el prompt no obliga. En el taller de agentes del curso, un agente se saltó un paso que su prompt exigía literalmente |
-| Contexto del LLM | La ventana que declara el modelo (256K) | **Ventana asignada, verificada y enviada en cada petición** (sección 4.1.3) | Ollama asigna 4,096 tokens por omisión y descarta mensajes completos sin avisar |
-
----
-
 ## 2. Qué hace el sistema (especificación funcional)
 
 ### 2.1 En una frase

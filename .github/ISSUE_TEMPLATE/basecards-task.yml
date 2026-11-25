@@ -1,0 +1,139 @@
+name: "Tarea Base Cards: Skill, Herramienta o Documentación"
+description: "Template para generar tareas puntuales alineadas con el Manual Técnico y PRD v1.1"
+title: "[TASK] <tipo(ámbito): descripción corta>"
+labels: ["tarea", "pendiente"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Plantilla de tarea — Base Cards
+
+        Usa este template para crear tareas alineadas con el Manual Técnico y el PRD v1.1.
+
+        > **Regla de oro del proyecto:** ningún commit debe superar **6,000 líneas de diff** (sin contar documentación, datos, lockfiles ni archivos generados). Tamaño recomendado: **300–800 líneas por commit**. Cada commit debe ser autónomo (pasa `ruff` y `pytest`).
+
+  - type: input
+    id: titulo
+    attributes:
+      label: Título de la tarea
+      description: Ejemplo: feat(skill): agregar graficas_generar para seguimiento-cosechas
+      placeholder: tipo(ámbito): descripción corta
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de cambio
+      options:
+        - feat: Nueva funcionalidad
+        - fix: Corrección de error
+        - docs: Documentación (explicaciones/, README, Manual Técnico)
+        - chore: Mantenimiento, configuración, dependencias
+        - test: Pruebas unitarias o de integración
+        - refactor: Refactorización sin cambiar comportamiento
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ambito
+    attributes:
+      label: Ámbito del proyecto
+      options:
+        - skills: Estructura y validación de skills (skills/, src/basecards/herramientas/skills.py)
+        - herramientas: src/basecards/herramientas/ (excluyendo skills.py)
+        - branding: config/branding/ (banamex.yaml, generar_template.py, template_banamex.pptx)
+        - presentaciones: Grafo LangGraph, ensamblado de diapositivas y verificación de cifras
+        - datos: Fuente de datos y métricas en DuckDB (data/, metricas.py)
+        - pruebas: tests/ (pytest)
+        - documentacion: explicaciones/ y docs/
+        - otros
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: resumen
+    attributes:
+      label: Resumen de la tarea
+      description: ¿Qué se va a construir o modificar? Sé claro y conciso.
+      placeholder: |
+        Ejemplo: Implementar graficas_generar() que lea charts.yaml y produzca imágenes matplotlib y specs nativas de PowerPoint para la skill seguimiento-cosechas.
+    validations:
+      required: true
+
+  - type: textarea
+    id: archivos
+    attributes:
+      label: Archivos a crear o modificar
+      description: Lista las rutas relativas exactas.
+      placeholder: |
+        - src/basecards/herramientas/graficas.py (nuevo)
+        - tests/herramientas/test_graficas.py (nuevo)
+        - src/basecards/herramientas/__init__.py (modificar exportes)
+        - explicaciones/02_graficas_matplotlib.md (nuevo)
+    validations:
+      required: true
+
+  - type: textarea
+    id: reglas_prd
+    attributes:
+      label: Reglas del PRD y Manual Técnico aplicables
+      description: Cita los requisitos que cubre esta tarea.
+      placeholder: |
+        - RB-03: Cero cálculo en el LLM; fórmulas en DSL cerrado traducido a DuckDB, nunca eval().
+        - RB-04: Marcadores {{m.<metrica>.<cohorte>.<mob>|<formato>}} en lugar de números literales.
+        - RB-06: Verificación obligatoria de cifras (documento_verificar_cifras) con 0 discrepancias.
+        - ADR-10: Grafo con StateGraph, Send para paralelizar, interrupt() aislado para lider_riesgo.
+        - S-20: template.pptx opcional; fallback a config/branding/template_banamex.pptx.
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios_aceptacion
+    attributes:
+      label: Criterios de aceptación (Definition of Done)
+      description: ¿Qué debe cumplirse para dar la tarea por terminada?
+      placeholder: |
+        - [ ] Pasa `.\.venv\Scripts\python.exe -m pytest tests/ -q`
+        - [ ] Pasa `.\.venv\Scripts\ruff.exe check src tests`
+        - [ ] Pasa `.\.venv\Scripts\ruff.exe format --check src tests`
+        - [ ] `skill_validar()` pasa con 0 errores para la skill afectada (si aplica)
+        - [ ] Commit autónomo con mensaje convencional (ej. feat(herramientas): agregar graficas_generar)
+        - [ ] Documentación actualizada en explicaciones/ (si es módulo relevante)
+    validations:
+      required: true
+
+  - type: input
+    id: lineas_estimadas
+    attributes:
+      label: Líneas de código estimadas (diff)
+      description: Máximo 6,000. Recomendado 300–800.
+      placeholder: 450
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias o tareas previas
+      description: ¿Esta tarea depende de otra issue o commit?
+      placeholder: |
+        - Ninguna
+        - Depende de issue #XX (Paso 1: metricas_calcular)
+    validations:
+      required: false
+
+  - type: textarea
+    id: notas
+    attributes:
+      label: Notas adicionales
+      description: Detalles relevantes para el revisor o el siguiente integrante.
+      placeholder: |
+        - Ejecutar siempre con .\.venv\Scripts\python.exe en Windows 11.
+        - No usar APIs externas de LLM; en runtime usar ChatOllama con num_ctx explícito.
+        - La identidad del usuario (user_id, roles, area) viaja en RunContext, nunca como argumento editable por el LLM.
+    validations:
+      required: false

@@ -1105,6 +1105,8 @@ metricas:
 agrupaciones: [VINTAGE, STRATEGY, MOB]
 ```
 
+**Implementación.** `metricas_calcular(skill_ruta, cohorte, mob_min, mob_max)` lee `metrics.yaml` y `schema.json`, compila cada métrica a una sola consulta de DuckDB y devuelve el diccionario `m` con claves `{{m.<metrica>.<cohorte>.<MOBn>|<formato>}}`. Las fórmulas se tokenizan y se analizan con una gramática recursiva (`sum`, `count`, `+ - * /`, paréntesis y columnas del esquema); nunca se usa `eval`. Cada métrica se agrega como razón de sumas (`SUM(numerador) / NULLIF(SUM(denominador), 0)`), se filtra por `MOB`, por `VINTAGE` (salvo `cohorte="todas"`) y por `filtro_exposicion`. La fuente se toma del parámetro `datos`, de la variable `BASECARDS_DATOS` o de `data/base_cards.parquet`; se aceptan `.parquet`, `.csv`, `.duckdb` y `.db`. Los errores usan códigos `E-MET-*`.
+
 ---
 
 ### 4.10 Cómo genera presentaciones y otros archivos

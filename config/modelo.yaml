@@ -1,0 +1,13 @@
+# Configuración del núcleo de analítica (Integrante 1): ingesta E1 y MPDC E2.
+# PRD §6 y Manual técnico §5. Cambiar un valor aquí es configuración, no código.
+
+ingesta:
+  # Raíz de los cortes en Parquet: data/cortes/{corte}/base_cards.parquet
+  dir_cortes: data/cortes
+  compresion: zstd
+  # Columnas de catálogo que se guardan como `category` (diccionario en Parquet)
+  categoricas: [STRATEGY, STRATEGY_SEGMENT, PRODUCT, CHANNEL, AGE_TAG, SCORE_TAG]
+  # Series que el sistema revisa para avisar si se comportan como acumuladas (S-01)
+  series_riesgo: [OVER30ACCTS, OVER30AMTS, GCLAMTS, NCLAMTS, RECOVERYAMTS, REVENUE]
+  # Una serie se considera acumulada si menos de esta fracción de sus diferencias por MOB es negativa
+  umbral_acumulado: 0.001

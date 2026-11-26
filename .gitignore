@@ -226,6 +226,12 @@ __marimo__/
 data/*
 !data/README.md
 
+# Modelos entrenados y tracking local de MLflow (Integrante 1)
+artefactos/
+mlruns/
+mlartifacts/
+mlflow.db
+
 # Notas y briefs locales de aprendizaje
 explicaciones/
 

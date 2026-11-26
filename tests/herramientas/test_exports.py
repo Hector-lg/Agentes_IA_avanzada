@@ -5,11 +5,15 @@ from __future__ import annotations
 from basecards import herramientas
 from basecards.herramientas import (
     MetricaError,
+    PptxError,
     compilar_expresion,
     compilar_metrica,
+    formatear_valor,
     metricas_calcular,
+    pptx_ensamblar,
     skills_leer,
     skills_listar,
+    sustituir_marcadores,
 )
 
 
@@ -25,6 +29,14 @@ def test_exporta_el_catalogo_de_skills() -> None:
     assert callable(skills_listar)
 
 
+def test_exporta_el_ensamblador_de_pptx() -> None:
+    assert callable(pptx_ensamblar)
+    assert callable(formatear_valor)
+    assert callable(sustituir_marcadores)
+    assert issubclass(PptxError, Exception)
+
+
 def test_dir_incluye_los_simbolos_publicos() -> None:
     visibles = set(dir(herramientas))
     assert {"metricas_calcular", "MetricaError", "skills_leer"} <= visibles
+    assert {"pptx_ensamblar", "PptxError"} <= visibles

@@ -6,6 +6,8 @@ importe el módulo dos veces.
 
 from __future__ import annotations
 
+import sys
+import types
 from typing import Any
 
 _EXPORTADOS: dict[str, str] = {
@@ -23,7 +25,22 @@ _EXPORTADOS: dict[str, str] = {
     "compilar_expresion": "metricas",
     "compilar_metrica": "metricas",
     "metricas_calcular": "metricas",
+    "PptxError": "pptx_ensamblar",
+    "formatear_valor": "pptx_ensamblar",
+    "pptx_ensamblar": "pptx_ensamblar",
+    "sustituir_marcadores": "pptx_ensamblar",
 }
+
+
+class _ModuloHerramientas(types.ModuleType):
+    """Resuelve el choque entre el módulo y la función ``pptx_ensamblar``."""
+
+    def __getattribute__(self, nombre: str) -> Any:
+        if nombre == "pptx_ensamblar":
+            from basecards.herramientas.pptx_ensamblar import pptx_ensamblar
+
+            return pptx_ensamblar
+        return super().__getattribute__(nombre)
 
 
 def __getattr__(nombre: str) -> Any:
@@ -37,3 +54,6 @@ def __getattr__(nombre: str) -> Any:
 
 def __dir__() -> list[str]:
     return sorted([*globals(), *_EXPORTADOS])
+
+
+sys.modules[__name__].__class__ = _ModuloHerramientas

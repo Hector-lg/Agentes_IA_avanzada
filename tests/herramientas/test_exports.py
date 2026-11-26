@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from basecards import herramientas
 from basecards.herramientas import (
+    DocxError,
     MetricaError,
     PptxError,
     compilar_expresion,
     compilar_metrica,
+    docx_ensamblar,
     formatear_valor,
     metricas_calcular,
     pptx_ensamblar,
@@ -36,7 +38,13 @@ def test_exporta_el_ensamblador_de_pptx() -> None:
     assert issubclass(PptxError, Exception)
 
 
+def test_exporta_el_ensamblador_de_docx() -> None:
+    assert callable(docx_ensamblar)
+    assert issubclass(DocxError, Exception)
+
+
 def test_dir_incluye_los_simbolos_publicos() -> None:
     visibles = set(dir(herramientas))
     assert {"metricas_calcular", "MetricaError", "skills_leer"} <= visibles
     assert {"pptx_ensamblar", "PptxError"} <= visibles
+    assert {"docx_ensamblar", "DocxError"} <= visibles

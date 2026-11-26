@@ -40,6 +40,24 @@ graficas:
   paleta: [primario, acento, positivo, negativo]
   fuente_datos: "Cubo Base Cards"
 
+documento:
+  plantilla_base: template_banamex.docx
+  pagina:
+    ancho_pulgadas: 8.5
+    alto_pulgadas: 11
+  margenes_pulgadas:
+    izquierda: 0.9
+    derecha: 0.9
+    superior: 0.8
+    inferior: 0.8
+  tipografia:
+    titulo: 20
+    subtitulo: 12
+    cuerpo: 11
+    encabezado: 9
+    pie: 8
+    tabla: 9
+
 reglas:
   action_titles: true
   max_graficas_por_diapositiva: 1

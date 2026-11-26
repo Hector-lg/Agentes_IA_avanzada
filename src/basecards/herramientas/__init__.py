@@ -29,17 +29,19 @@ _EXPORTADOS: dict[str, str] = {
     "formatear_valor": "pptx_ensamblar",
     "pptx_ensamblar": "pptx_ensamblar",
     "sustituir_marcadores": "pptx_ensamblar",
+    "DocxError": "docx_ensamblar",
+    "docx_ensamblar": "docx_ensamblar",
 }
 
 
 class _ModuloHerramientas(types.ModuleType):
-    """Resuelve el choque entre el módulo y la función ``pptx_ensamblar``."""
+    """Resuelve el choque entre el nombre del módulo y el de la función."""
 
     def __getattribute__(self, nombre: str) -> Any:
-        if nombre == "pptx_ensamblar":
-            from basecards.herramientas.pptx_ensamblar import pptx_ensamblar
+        if nombre in {"pptx_ensamblar", "docx_ensamblar"}:
+            from importlib import import_module
 
-            return pptx_ensamblar
+            return getattr(import_module(f"{__name__}.{nombre}"), nombre)
         return super().__getattribute__(nombre)
 
 

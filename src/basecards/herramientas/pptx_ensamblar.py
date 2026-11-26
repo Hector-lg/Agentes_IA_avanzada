@@ -29,6 +29,9 @@ from pptx.oxml.xmlchemy import OxmlElement
 from pptx.util import Inches, Pt
 from pydantic import ValidationError
 
+from basecards.herramientas.marcadores import PATRON_MARCADOR, MarcadorError
+from basecards.herramientas.marcadores import formatear_valor as _formatear_valor
+from basecards.herramientas.marcadores import sustituir_marcadores as _sustituir_marcadores
 from basecards.herramientas.skills import GraficasDoc
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -36,15 +39,6 @@ BRANDING_RUTA = ROOT / "config" / "branding" / "banamex.yaml"
 PLANTILLA_FALLBACK = ROOT / "config" / "branding" / "template_banamex.pptx"
 
 LAYOUTS_REQUERIDOS = ("Portada", "Titulo_y_Grafica", "Dos_Columnas", "Tabla", "Cierre")
-
-FORMATOS_VALOR = frozenset({"pct1", "pct2", "mxn", "mxn_millones", "int"})
-
-PATRON_MARCADOR = re.compile(
-    r"\{\{m\.(?P<metrica>[A-Za-z_][A-Za-z0-9_]*)"
-    r"\.(?P<cohorte>\d{6}|todas)"
-    r"\.MOB(?P<mob>\d+)"
-    r"\|(?P<formato>pct1|pct2|mxn|mxn_millones|int)\}\}"
-)
 
 
 class PptxError(Exception):
@@ -98,23 +92,10 @@ DatosTabla = Mapping[str, Any]
 
 def formatear_valor(valor: float, formato: str) -> str:
     """Formatea un valor ya calculado según el formato del marcador."""
-    if formato not in FORMATOS_VALOR:
-        raise PptxError(
-            "E-PPT-030",
-            f"formato desconocido {formato!r}; usa {sorted(FORMATOS_VALOR)}",
-        )
-    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
-        raise PptxError("E-PPT-030", f"el valor {valor!r} no es numérico")
-    numero = float(valor)
-    if formato == "pct1":
-        return f"{numero * 100:,.1f}%"
-    if formato == "pct2":
-        return f"{numero * 100:,.2f}%"
-    if formato == "mxn":
-        return f"${numero:,.0f}"
-    if formato == "mxn_millones":
-        return f"${numero / 1_000_000:,.1f} M"
-    return f"{round(numero):,}"
+    try:
+        return _formatear_valor(valor, formato)
+    except MarcadorError as exc:
+        raise PptxError("E-PPT-030", exc.mensaje) from exc
 
 
 def sustituir_marcadores(texto: str, metricas: Mapping[str, float | int]) -> str:
@@ -123,17 +104,10 @@ def sustituir_marcadores(texto: str, metricas: Mapping[str, float | int]) -> str
     Un marcador sin valor calculado es un error: nunca se deja el texto crudo
     en el documento final.
     """
-
-    def reemplazo(coincidencia: re.Match[str]) -> str:
-        clave = coincidencia.group(0)
-        if clave not in metricas:
-            raise PptxError(
-                "E-PPT-030",
-                f"el marcador {clave} no tiene valor calculado",
-            )
-        return formatear_valor(metricas[clave], coincidencia.group("formato"))
-
-    return PATRON_MARCADOR.sub(reemplazo, texto)
+    try:
+        return _sustituir_marcadores(texto, metricas)
+    except MarcadorError as exc:
+        raise PptxError("E-PPT-030", exc.mensaje) from exc
 
 
 # ---------------------------------------------------------------------------

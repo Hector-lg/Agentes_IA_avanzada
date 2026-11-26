@@ -31,6 +31,8 @@ _EXPORTADOS: dict[str, str] = {
     "sustituir_marcadores": "pptx_ensamblar",
     "DocxError": "docx_ensamblar",
     "docx_ensamblar": "docx_ensamblar",
+    "XlsxError": "xlsx_ensamblar",
+    "xlsx_ensamblar": "xlsx_ensamblar",
 }
 
 
@@ -38,7 +40,7 @@ class _ModuloHerramientas(types.ModuleType):
     """Resuelve el choque entre el nombre del módulo y el de la función."""
 
     def __getattribute__(self, nombre: str) -> Any:
-        if nombre in {"pptx_ensamblar", "docx_ensamblar"}:
+        if nombre in {"pptx_ensamblar", "docx_ensamblar", "xlsx_ensamblar"}:
             from importlib import import_module
 
             return getattr(import_module(f"{__name__}.{nombre}"), nombre)

@@ -7,6 +7,7 @@ from basecards.herramientas import (
     DocxError,
     MetricaError,
     PptxError,
+    XlsxError,
     compilar_expresion,
     compilar_metrica,
     docx_ensamblar,
@@ -16,6 +17,7 @@ from basecards.herramientas import (
     skills_leer,
     skills_listar,
     sustituir_marcadores,
+    xlsx_ensamblar,
 )
 
 
@@ -43,8 +45,14 @@ def test_exporta_el_ensamblador_de_docx() -> None:
     assert issubclass(DocxError, Exception)
 
 
+def test_exporta_el_ensamblador_de_xlsx() -> None:
+    assert callable(xlsx_ensamblar)
+    assert issubclass(XlsxError, Exception)
+
+
 def test_dir_incluye_los_simbolos_publicos() -> None:
     visibles = set(dir(herramientas))
     assert {"metricas_calcular", "MetricaError", "skills_leer"} <= visibles
     assert {"pptx_ensamblar", "PptxError"} <= visibles
     assert {"docx_ensamblar", "DocxError"} <= visibles
+    assert {"xlsx_ensamblar", "XlsxError"} <= visibles

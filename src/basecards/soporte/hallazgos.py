@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-
 SEVERIDAD_ORDEN = {"info": 0, "baja": 1, "media": 2, "alta": 3, "critica": 4}
 
 COLUMNAS_MUESTRA = [

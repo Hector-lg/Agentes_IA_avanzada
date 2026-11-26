@@ -127,9 +127,7 @@ def _c01_reexpresion(
     )
 
 
-def _c02_mad(
-    df: pd.DataFrame, df_anterior: pd.DataFrame, cfg: dict[str, Any]
-) -> Hallazgo | None:
+def _c02_mad(df: pd.DataFrame, df_anterior: pd.DataFrame, cfg: dict[str, Any]) -> Hallazgo | None:
     """Límites de control robustos sobre variación de totales por cosecha (|z| > 3.5)."""
     umbral = float(cfg.get("mad_z_umbral", 3.5))
     cur = df.groupby("VINTAGE", dropna=False)[METRICAS].apply(

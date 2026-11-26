@@ -16,7 +16,7 @@ def _leer_yaml(ruta: Path) -> dict[str, Any]:
     with ruta.open(encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
     if not isinstance(data, dict):
-        raise ValueError(f"YAML inválido en {ruta}: se esperaba un mapping")
+        raise TypeError(f"YAML inválido en {ruta}: se esperaba un mapping")
     return data
 
 

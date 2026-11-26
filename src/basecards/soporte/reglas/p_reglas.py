@@ -91,9 +91,7 @@ def evaluar_p(df: pd.DataFrame, reglas: dict[str, Any] | None = None) -> list[Ha
     seg = df["STRATEGY_SEGMENT"].astype("string")
     malo_costco = (prod == "Costco") & (chan != "Costco") & ~seg.str.contains("Costco", na=False)
     malo_hd = (
-        (prod == "Home Depot")
-        & (chan != "Home Depot")
-        & ~seg.str.contains("Home Depot", na=False)
+        (prod == "Home Depot") & (chan != "Home Depot") & ~seg.str.contains("Home Depot", na=False)
     )
     # También: canal Costco/HD con producto distinto
     malo_canal = ((chan == "Costco") & (prod != "Costco")) | (

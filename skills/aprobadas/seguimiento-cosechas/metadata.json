@@ -6,7 +6,7 @@
   "fecha_aprobacion": "2026-11-24",
   "diccionario": "base_cards@2026-11",
   "hash_template": null,
-  "hash_contenido": "sha256:061f71c8bd7a53694999287fcf217f6e4fda1d842ae3a9d089fa4d4626d630ea",
+  "hash_contenido": "sha256:cc5fd7f4f1b796c5ae7b762f2d2a3a0cd6894ea5e14e8035b6fd7b424d9f261d",
   "salidas": [
     "pptx",
     "pdf"

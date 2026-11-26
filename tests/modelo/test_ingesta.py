@@ -46,6 +46,14 @@ def test_parquet_tipado_y_manifiesto(corte_parquet, cubo):
 def test_acepta_encabezados_dummi(tmp_path, cubo):
     """S-06: un CSV con códigos dummiN en el encabezado se traduce a nombres de variable."""
     inverso = {v: k for k, v in cargar_mapeo()["dummi_a_variable"].items()}
+    # Códigos del diccionario de Banamex: no son consecutivos y MOB no tiene código
+    assert len(inverso) == 21 and "MOB" not in inverso
+    assert (inverso["STRATEGY"], inverso["AGE_TAG"], inverso["SCORE_TAG"]) == (
+        "dummi12",
+        "dummi2",
+        "dummi10",
+    )
+    assert (inverso["REVENUE"], inverso["EXPENSES_TOTAL"]) == ("dummi44", "dummi49")
     ruta = tmp_path / "dummi.csv"
     cubo.head(200).rename(columns=inverso).to_csv(ruta, index=False)
     res = ingerir_csv(ruta, 202609, dir_cortes=tmp_path / "cortes")
@@ -70,14 +78,28 @@ def test_valores_no_numericos_se_reportan(tmp_path, cubo):
 
 
 def test_validar_queda_en_el_manifiesto(tmp_path, cubo):
-    """--validar corre E1 del Agente de Soporte; si una regla falla, la ingesta no se cae."""
+    """--validar corre E1 del Agente de Soporte y deja el dictamen en el manifiesto."""
     ruta = tmp_path / "corte.csv"
     cubo.to_csv(ruta, index=False)
     res = ingerir_csv(ruta, 202609, dir_cortes=tmp_path / "cortes", validar=True)
     v = res.manifiesto["validacion"]
-    assert v is not None and ("dictamen" in v)
-    if v["dictamen"] is not None:
-        assert (res.ruta_parquet.parent / v["archivo_hallazgos"]).exists()
+    assert v.get("error") is None, v["error"]
+    assert v["dictamen"] == "apto"
+    assert (res.ruta_parquet.parent / v["archivo_hallazgos"]).exists()
+
+
+def test_validar_no_tumba_la_ingesta(tmp_path, cubo, monkeypatch):
+    """Si una regla del Agente de Soporte lanza un error, queda en el manifiesto."""
+
+    def regla_rota(*args, **kwargs):
+        raise RuntimeError("regla rota")
+
+    monkeypatch.setattr("basecards.soporte.pipeline_e1.validar_dataframe", regla_rota)
+    ruta = tmp_path / "corte.csv"
+    cubo.head(100).to_csv(ruta, index=False)
+    res = ingerir_csv(ruta, 202609, dir_cortes=tmp_path / "cortes", validar=True)
+    assert res.manifiesto["validacion"] == {"dictamen": None, "error": "RuntimeError: regla rota"}
+    assert res.ruta_parquet.exists()
 
 
 def test_perf_month_y_corte_anterior():

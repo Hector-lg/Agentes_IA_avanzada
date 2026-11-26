@@ -1,5 +1,11 @@
-# S-01: métricas de riesgo son del mes (no acumuladas) por defecto.
-acumulado: false
+# S-01: ¿las métricas de riesgo son del mes o acumuladas al MOB?
+# Evidencia en el corte 202609 (base_cards_sintetica.csv, 1,089,833 filas): GCLAMTS, NCLAMTS,
+# RECOVERYAMTS, OVER30ACCTS, OVER30AMTS y REVENUE NUNCA decrecen con el MOB dentro de una cohorte
+# (0.0% de diferencias negativas), mientras que ENRAMTS y EXPENSES_ECM_VAR sí suben y bajan.
+# Por eso se fija acumulado=true, lo que activa la regla P-07 del Agente de Soporte.
+# La ingesta (basecards.ingesta) vuelve a revisar cada corte y avisa en su manifest.json
+# si los datos dejan de comportarse así.
+acumulado: true
 
 denominadores:
   tasa_ncl: ENRAMTS

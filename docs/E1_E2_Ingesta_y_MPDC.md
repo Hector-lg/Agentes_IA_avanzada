@@ -21,7 +21,7 @@ viven solo en cada máquina.
 | Paso | Tiempo medido (laptop, 16 hilos) |
 |---|---|
 | Ingesta (sin validación) | 7–11 s para 1,089,833 filas (193.5 MB CSV → 37.3 MB Parquet zstd) |
-| Validación E1 del Agente de Soporte (`--validar`) | ~66 s (con el fix de C-01 del issue #5; antes, la regla C-01 lanza `TypeError` y el manifiesto lo registra) |
+| Validación E1 del Agente de Soporte (`--validar`) | ~90 s, dictamen `apto`; ~35 s son de P-07, que corre desde que `acumulado: true` (issue #5) |
 
 ## 2. E1 — Ingesta (`src/basecards/ingesta/`, issue #4)
 
@@ -69,5 +69,15 @@ Para que `metricas_calcular` (presentaciones, issue #31) lea este Parquet basta 
 | Filas normalizadas por N-01 | 194,376 |
 | Series que nunca decrecen con el MOB | GCL, NCL, recuperaciones, Over30 (cuentas y saldo) y REVENUE |
 
-Las series de riesgo se comportan como **acumuladas**, así que el manifiesto avisa que no coinciden
-con `acumulado: false`. El ajuste del parámetro se hace en el issue #5.
+Las series de riesgo se comportan como **acumuladas**. Por eso `config/indicadores.yaml` fija
+`acumulado: true` (issue #5), lo que activa la regla P-07 del Agente de Soporte; en este corte P-07
+no encuentra ninguna serie que baje. Si un corte futuro deja de comportarse así, el manifiesto lo
+avisa en `avisos`.
+
+### Ajustes del issue #5
+
+- **`config/mapeo_columnas.yaml` (S-06):** los códigos `dummiN` ahora son los del diccionario de
+  Banamex, que no son consecutivos (`dummi12` = STRATEGY, `dummi2` = AGE_TAG, `dummi44` = REVENUE…).
+- **C-01 (`soporte/reglas/c_reglas.py`):** convierte a `float64` antes de `clip(lower=1e-9)`. Con
+  columnas `Int64` que traen ceros (por ejemplo OVER30ACCTS), pandas lanzaba `TypeError` y
+  `--validar` no daba dictamen.

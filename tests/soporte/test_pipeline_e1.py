@@ -4,8 +4,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from basecards.soporte.carga import normalizar_catalogos
+from basecards.soporte.carga import castear_tipos, normalizar_catalogos
 from basecards.soporte.pipeline_e1 import validar_corte, validar_dataframe
+from basecards.soporte.reglas import evaluar_c
 from basecards.soporte.sintetico import generar_cubo_sintetico
 
 
@@ -14,6 +15,22 @@ def test_cubo_sintetico_apto(cubo_ok):
     criticas = [h for h in res.hallazgos if h.severidad == "critica"]
     assert criticas == [], [h.to_dict() for h in criticas]
     assert res.dictamen == "apto"
+
+
+def test_c01_columnas_int64_con_ceros(cubo_ok):
+    """C-01 compara contra el corte anterior aunque las columnas Int64 traigan ceros.
+
+    Con el CSV real, clip(lower=1e-9) sobre Int64 con ceros lanzaba TypeError.
+    """
+    df = castear_tipos(cubo_ok)
+    df["OVER30ACCTS"] = pd.array([0] * len(df), dtype="Int64")
+    anterior = df.copy()
+    assert evaluar_c(df, anterior) == []  # mismos valores: no hay reexpresión
+
+    fila = anterior.index[0]
+    anterior.loc[fila, "OVER30ACCTS"] = 5  # el corte anterior traía otro valor
+    hallazgos = {h.regla_id: h for h in evaluar_c(df, anterior)}
+    assert hallazgos["C-01"].filas_afectadas == 1
 
 
 def test_n01_recorta_espacios(cubo_ok):

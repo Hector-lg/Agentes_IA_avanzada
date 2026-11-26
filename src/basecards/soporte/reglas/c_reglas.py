@@ -99,8 +99,9 @@ def _c01_reexpresion(
         prev = f"{col}_prev"
         if prev not in merged.columns:
             continue
-        cur = pd.to_numeric(merged[col], errors="coerce")
-        ant = pd.to_numeric(merged[prev], errors="coerce")
+        # float64: en columnas Int64 con ceros, clip(lower=1e-9) lanza TypeError
+        cur = pd.to_numeric(merged[col], errors="coerce").astype("float64")
+        ant = pd.to_numeric(merged[prev], errors="coerce").astype("float64")
         denom = ant.abs().clip(lower=1e-9)
         rel = (cur - ant).abs() / denom
         mask |= (rel > tol).fillna(False)

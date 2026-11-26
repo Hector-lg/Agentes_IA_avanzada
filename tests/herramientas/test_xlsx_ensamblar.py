@@ -235,6 +235,29 @@ def test_resumen_automatico_suma_columnas_numericas(tmp_path: Path) -> None:
     assert "Total SALDO" in nombres
     assert "Total VINTAGE" not in nombres
     assert "Total MOB" not in nombres
+    # RB-03: nunca se suma una columna de razón (tasa/porcentaje).
+    assert "Total TASA_NCL" not in nombres
+
+
+def test_resumen_automatico_excluye_columnas_de_razon_por_rango(tmp_path: Path) -> None:
+    # Una columna sin pista en el nombre pero con valores en [0, 1] es una razón.
+    datos = {
+        "columnas": ["VINTAGE", "cobertura_intervalo", "NCLAMTS"],
+        "filas": [
+            [202401, 0.90, 120_000],
+            [202402, 0.88, 90_000],
+        ],
+    }
+    salida = _ensamblar(tmp_path, datos=datos, resumen=None)
+    hoja = load_workbook(str(salida), data_only=False)["Resumen"]
+    nombres = [
+        hoja.cell(fila, 1).value
+        for fila in range(5, hoja.max_row + 1)
+        if isinstance(hoja.cell(fila, 1).value, str)
+        and hoja.cell(fila, 1).value.startswith("Total ")
+    ]
+    assert "Total NCLAMTS" in nombres
+    assert "Total cobertura_intervalo" not in nombres
 
 
 def test_escribe_fechas_con_formato_iso(tmp_path: Path) -> None:

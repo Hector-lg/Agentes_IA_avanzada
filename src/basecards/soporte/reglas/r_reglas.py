@@ -9,9 +9,9 @@ import pandas as pd
 
 from basecards.soporte.carga import mob_max
 from basecards.soporte.config import (
+    cargar_reglas,
     catalogo_scores,
     catalogo_segmentos,
-    cargar_reglas,
     strategies_permitidas,
 )
 from basecards.soporte.hallazgos import Hallazgo, muestra_filas, pct
@@ -92,7 +92,9 @@ def evaluar_esquema(df: pd.DataFrame, reglas: dict[str, Any] | None = None) -> l
         num = pd.to_numeric(raw, errors="coerce")
         # enteros: si hay valor no-nulo que no es entero
         malo = raw.notna() & (num.isna() | (num != num.round()))
-        h = _hallazgo("R-02", f"Columna {col} no es entera", df, malo, cfg, detalle={"columna": col})
+        h = _hallazgo(
+            "R-02", f"Columna {col} no es entera", df, malo, cfg, detalle={"columna": col}
+        )
         if h:
             hallazgos.append(h)
 
@@ -100,7 +102,9 @@ def evaluar_esquema(df: pd.DataFrame, reglas: dict[str, Any] | None = None) -> l
         raw = df[col]
         num = pd.to_numeric(raw, errors="coerce")
         malo = raw.notna() & num.isna()
-        h = _hallazgo("R-02", f"Columna {col} no es numérica", df, malo, cfg, detalle={"columna": col})
+        h = _hallazgo(
+            "R-02", f"Columna {col} no es numérica", df, malo, cfg, detalle={"columna": col}
+        )
         if h:
             hallazgos.append(h)
 
@@ -156,8 +160,7 @@ def _evaluar_r03_r18(df: pd.DataFrame, fecha_corte: int, cfg: dict[str, Any]) ->
 
     # R-08 STRATEGY vs VINTAGE
     permitidas = [
-        strategies_permitidas(int(vi), cfg) if pd.notna(vi) else set()
-        for vi in df["VINTAGE"]
+        strategies_permitidas(int(vi), cfg) if pd.notna(vi) else set() for vi in df["VINTAGE"]
     ]
     malo = pd.Series(
         [
@@ -177,9 +180,7 @@ def _evaluar_r03_r18(df: pd.DataFrame, fecha_corte: int, cfg: dict[str, Any]) ->
 
     # R-10 / R-11 por familia
     segs_ok = [
-        pd.isna(st)
-        or pd.isna(seg)
-        or seg in catalogo_segmentos(str(st), cfg)
+        pd.isna(st) or pd.isna(seg) or seg in catalogo_segmentos(str(st), cfg)
         for st, seg in zip(df["STRATEGY"], df["STRATEGY_SEGMENT"], strict=True)
     ]
     malo = ~pd.Series(segs_ok, index=df.index)
@@ -188,9 +189,7 @@ def _evaluar_r03_r18(df: pd.DataFrame, fecha_corte: int, cfg: dict[str, Any]) ->
         hallazgos.append(h)
 
     scores_ok = [
-        pd.isna(st)
-        or pd.isna(sc)
-        or sc in catalogo_scores(str(st), cfg)
+        pd.isna(st) or pd.isna(sc) or sc in catalogo_scores(str(st), cfg)
         for st, sc in zip(df["STRATEGY"], df["SCORE_TAG"], strict=True)
     ]
     malo = ~pd.Series(scores_ok, index=df.index)
@@ -199,9 +198,7 @@ def _evaluar_r03_r18(df: pd.DataFrame, fecha_corte: int, cfg: dict[str, Any]) ->
         hallazgos.append(h)
 
     # R-12 MOB <= mob_max
-    mmax = df["VINTAGE"].map(
-        lambda vi: mob_max(int(vi), fecha_corte) if pd.notna(vi) else -1
-    )
+    mmax = df["VINTAGE"].map(lambda vi: mob_max(int(vi), fecha_corte) if pd.notna(vi) else -1)
     mob = df["MOB"].astype("Int64")
     malo = mob.notna() & (mob > mmax)
     h = _hallazgo("R-12", "MOB supera los meses entre VINTAGE y la fecha de corte", df, malo, cfg)
@@ -251,8 +248,7 @@ def _regla_r09(df: pd.DataFrame, cfg: dict[str, Any]) -> Hallazgo | None:
 
     for banda in cfg["mezcla_strategy"]:
         sub = mob0[
-            (mob0["VINTAGE"] >= banda["vintage_min"])
-            & (mob0["VINTAGE"] <= banda["vintage_max"])
+            (mob0["VINTAGE"] >= banda["vintage_min"]) & (mob0["VINTAGE"] <= banda["vintage_max"])
         ]
         for vintage, g in sub.groupby("VINTAGE"):
             n = float(pd.to_numeric(g["ACCOUNTS"], errors="coerce").fillna(0).sum())
@@ -331,7 +327,7 @@ def _regla_r17(df: pd.DataFrame, fecha_corte: int, cfg: dict[str, Any]) -> list[
         if not mobs:
             continue
         vintage = int(g["VINTAGE"].iloc[0])
-        esperado = list(range(0, mob_max(vintage, fecha_corte) + 1))
+        esperado = list(range(mob_max(vintage, fecha_corte) + 1))
         # Contiguos desde 0 hasta el máximo observado (y sin huecos)
         if mobs[0] != 0 or mobs != list(range(mobs[0], mobs[-1] + 1)):
             huecos += 1

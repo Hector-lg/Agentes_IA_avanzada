@@ -61,8 +61,8 @@ def generar_cubo_sintetico(
             if banda["vintage_min"] <= vintage <= banda["vintage_max"]:
                 p = float(banda["p_esperada"])
                 pares = [
-                    ("r.Reca champ", int(round(1000 * (1 - p)))),
-                    (banda["challenger"], int(round(1000 * p))),
+                    ("r.Reca champ", round(1000 * (1 - p))),
+                    (banda["challenger"], round(1000 * p)),
                 ]
                 break
 

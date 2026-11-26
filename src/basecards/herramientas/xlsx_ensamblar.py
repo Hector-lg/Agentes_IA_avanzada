@@ -50,6 +50,27 @@ ALIAS_FORMATOS = {
 }
 
 COLUMNAS_IDENTIFICADOR = {"VINTAGE", "MOB", "ID", "CLAVE", "LLAVE"}
+# Pistas de nombre para columnas de razón (tasas, porcentajes, proporciones).
+# Sumar una razón viola RB-03 (toda agregación es razón de sumas, nunca suma ni
+# promedio de razones), así que estas columnas se excluyen del resumen automático.
+PISTAS_RAZON = (
+    "tasa",
+    "pct",
+    "porcentaje",
+    "ratio",
+    "razon",
+    "razón",
+    "proporcion",
+    "proporción",
+    "utilizacion",
+    "utilización",
+    "activacion",
+    "activación",
+    "cobertura",
+    "margen_pct",
+    "recuperacion",
+    "recuperación",
+)
 PISTAS_MONETARIAS = (
     "saldo",
     "monto",
@@ -163,6 +184,24 @@ def _es_numero(valor: Any) -> bool:
 def _pista_monetaria(columna: str) -> bool:
     nombre = columna.lower()
     return any(pista in nombre for pista in PISTAS_MONETARIAS)
+
+
+def _es_columna_razon(columna: str, valores: Sequence[Any]) -> bool:
+    """Indica si una columna parece una razón (tasa, porcentaje, proporción).
+
+    Una razón nunca se suma (RB-03). Se detecta por el nombre y, como respaldo,
+    porque todos sus valores no enteros caen en el rango [0, 1].
+    """
+    nombre = columna.lower()
+    if any(pista in nombre for pista in PISTAS_RAZON):
+        return True
+    numeros = [valor for valor in valores if _es_numero(valor)]
+    if not numeros:
+        return False
+    tiene_fraccion = any(
+        not isinstance(valor, Integral) or isinstance(valor, bool) for valor in numeros
+    )
+    return tiene_fraccion and all(0.0 <= float(valor) <= 1.0 for valor in numeros)
 
 
 def _inferir_corte(metricas: Mapping[str, float | int]) -> str | None:
@@ -298,6 +337,10 @@ def _resumen_automatico(
             continue
         valores = _valores_columna(filas, indice)
         if not valores or not all(_es_numero(valor) for valor in valores):
+            continue
+        # RB-03: una columna de razón (tasa, porcentaje) no se suma. Si el analista
+        # necesita su agregado, debe declararlo como razón de sumas en `resumen`.
+        if _es_columna_razon(columna, valores):
             continue
         resultado.append(
             {

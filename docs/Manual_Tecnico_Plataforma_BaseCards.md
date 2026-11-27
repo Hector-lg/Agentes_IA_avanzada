@@ -728,6 +728,8 @@ Toda escritura guarda el estado anterior, de modo que `deshacer(accion_id)` la r
 | `documento_miniaturas` | Imágenes PNG de cada página o diapositiva para revisión |
 | `skill_proponer_borrador` | Escribe una skill nueva solo en `skills/borradores/{user_id}/` |
 
+`documento_convertir(ruta_pptx, salida_pdf, *, runner, timeout_s=120)` y `documento_miniaturas(ruta_pptx, salida_dir, *, runner, timeout_s=120)` reciben el cliente del sandbox inyectado; sin él fallan con `E-CON-005`. El detalle del contrato está en la sección 4.3.4 y el catálogo de códigos en `docs/Catalogo_Codigos_Error.md`.
+
 **Ejecución de código (Presentaciones y Copiloto)**
 
 | Herramienta | Qué hace | Límites |
@@ -793,6 +795,49 @@ docker run --rm \
 - En producción: Job de Kubernetes con `RuntimeClass: gvisor`, `NetworkPolicy` que niega todo, y los mismos límites.
 - El acceso al socket de Docker equivale a acceso de administrador del host. Por eso solo lo tiene `sandbox-runner`, que no expone puertos, no recibe texto del LLM como comando y solo acepta las plantillas de abajo.
 
+**Contrato del runner.** El worker no habla con Docker: habla con `sandbox-runner` mediante una interfaz tipada. Las herramientas que necesitan ejecutar un binario reciben un objeto que cumple este contrato:
+
+```python
+class SandboxRunner(Protocol):
+    def ejecutar(
+        self,
+        comando: str,
+        argumentos: Sequence[str],
+        *,
+        timeout_s: float = 120.0,
+    ) -> ResultadoComando: ...
+
+@dataclass(frozen=True)
+class ResultadoComando:
+    codigo: int
+    stdout: str = ""
+    stderr: str = ""
+```
+
+- `comando` es un identificador de la lista blanca (`soffice`, `pdftoppm`, …), no texto libre del LLM.
+- `argumentos` es una lista; nunca se usa `shell=True` ni se interpola texto.
+- `timeout_s` lo fija la herramienta: 60 s para `run_python` y 120 s para conversión.
+- Si el runner no se inyecta, la herramienta falla con `E-CON-005`; no existe un respaldo que ejecute LibreOffice en el host.
+
+**Qué hace el adaptador de `sandbox-runner`:**
+
+1. Traduce las rutas del workspace del host a `/workspace` y viceversa.
+2. Verifica que `comando` esté en la lista blanca y que los nombres de archivo cumplan `^[A-Za-z0-9._-]{1,120}$`.
+3. Lanza el contenedor con las banderas de arriba.
+4. Devuelve `codigo`, `stdout` y `stderr` truncados a 20,000 caracteres, más la lista de archivos nuevos en `/workspace`.
+5. Si el contenedor excede el tiempo, lo mata y lanza `TimeoutError`; si el binario no existe, devuelve código 127 o `FileNotFoundError`.
+
+**Qué garantiza el aislamiento:**
+
+- `--network none`: el contenedor no tiene salida a internet ni a la red del banco.
+- `--read-only` y `--tmpfs /tmp`: el sistema de archivos base no se modifica.
+- `--user 10001:10001` y `--cap-drop ALL`: corre sin privilegios.
+- Solo se monta `workspaces/{user_id}/{session_id}` en `/workspace:rw`; el cubo se monta en `/data/cubo:ro`.
+- En producción se usa un Job de Kubernetes con `RuntimeClass: gvisor` y una `NetworkPolicy` que niega todo.
+- El socket de Docker solo lo ve `sandbox-runner`; ni el worker ni el LLM lo ven.
+
+**Salida y errores.** El worker recibe el código de salida y las salidas truncadas. Un código distinto de 0, un timeout, un binario ausente o un archivo esperado que no aparece se traducen a códigos estables de la familia correspondiente (`E-CON-*` para conversión, `E-MET-*` para métricas, etc.). El catálogo completo está en `docs/Catalogo_Codigos_Error.md`.
+
 #### 4.3.3 Comandos permitidos en el sandbox
 Se ejecutan con `subprocess.run([...], shell=False)`: lista de argumentos sin pasar por un shell, de modo que no hay interpolación.
 
@@ -805,6 +850,58 @@ Se ejecutan con `subprocess.run([...], shell=False)`: lista de argumentos sin pa
 | `python` | `python /workspace/.run/<uuid>.py` (código del agente) |
 
 Los nombres de archivo se validan con la expresión `^[A-Za-z0-9._-]{1,120}$` antes de construir el comando.
+
+**Detalle de `convertir` y `miniaturas`:**
+
+- `convertir` usa `soffice --headless --convert-to pdf --outdir /workspace/out /workspace/<archivo>`. El PDF resultante se verifica (existe y no está vacío) antes de publicarlo.
+- `miniaturas` usa `pdftoppm -png -r 80 /workspace/out/<archivo>.pdf /workspace/out/diapositiva`. Las imágenes se renombran a `diapositiva-01.png`, `diapositiva-02.png`, … para que el orden sea estable.
+- El PDF intermedio de las miniaturas se genera en un directorio temporal y se elimina al terminar; el directorio de salida queda solo con los PNG.
+- Ambos comandos tienen un timeout de 120 s.
+
+#### 4.3.4 Conversión y miniaturas en el sandbox
+
+`documento_convertir` y `documento_miniaturas` son las dos herramientas que usan LibreOffice y Poppler. No calculan métricas ni redactan: reciben un archivo que ya pasó por la verificación de cifras (RB-06) y por la aprobación del analista.
+
+**Firmas:**
+
+```python
+documento_convertir(
+    ruta_pptx: Path | str,
+    salida_pdf: Path | str,
+    *,
+    runner: SandboxRunner | None = None,
+    timeout_s: float = 120.0,
+) -> None
+
+documento_miniaturas(
+    ruta_pptx: Path | str,
+    salida_dir: Path | str,
+    *,
+    runner: SandboxRunner | None = None,
+    timeout_s: float = 120.0,
+) -> list[Path]
+```
+
+**Flujo de `documento_convertir`:**
+
+1. **Validación antes del sandbox.** El archivo existe, es un archivo regular, termina en `.pptx`, se puede abrir en binario y es un ZIP con `[Content_Types].xml` y `ppt/presentation.xml`. Esto detecta un archivo corrupto o un formato distinto renombrado como `.pptx`.
+2. **Validación de la salida.** La ruta termina en `.pdf`; su directorio se crea si no existe.
+3. **Ejecución.** Se envía `soffice` al sandbox con los argumentos en lista.
+4. **Verificación.** El PDF debe existir y tener tamaño mayor que cero. Si LibreOffice lo dejó con el nombre del `.pptx`, se renombra a la ruta solicitada.
+5. **Errores.** Timeout, binario ausente, código distinto de 0, PDF vacío o ruta inválida se traducen a `E-CON-*`.
+
+**Flujo de `documento_miniaturas`:**
+
+1. Valida el `.pptx` y el directorio de salida.
+2. Convierte a PDF en un directorio temporal dentro de la salida.
+3. Ejecuta `pdftoppm -png -r 80` sobre el PDF temporal.
+4. Ordena las imágenes por número de página y las renombra a `diapositiva-01.png`, `diapositiva-02.png`, …
+5. Borra las miniaturas previas antes de generar y limpia los PNG parciales si algo falla.
+6. Elimina el PDF temporal y el directorio temporal al terminar.
+
+**Errores y catálogo.** Los códigos `E-CON-001` … `E-CON-014` se documentan en `docs/Catalogo_Codigos_Error.md`. Los más frecuentes en operación son `E-CON-005` (no hay runner), `E-CON-006` (timeout), `E-CON-007` (falta `soffice`) y `E-CON-012` (falta `pdftoppm`).
+
+**Dónde encaja en el proceso.** La conversión ocurre después de `documento_verificar_cifras` y de la aprobación humana (sección 4.10.1, pasos 6–9). No sustituye la verificación: si el `.pptx` cambia después de verificado, hay que volver a verificar antes de convertirlo.
 
 ---
 

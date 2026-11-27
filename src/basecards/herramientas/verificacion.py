@@ -164,34 +164,34 @@ def _normalizar_texto_numero(texto: str) -> str:
         # Si hay 3 dígitos, podría ser separador de miles
         es_decimal = False
         if despues.isdigit() and len(despues) <= 2:
-                # 1-2 dígitos después → probablemente decimal
-                # Pero hay excepciones: "1,23" en español es "1.23"
-                # "1,234" en inglés es "1234" (separador de miles)
-                # Regla: si hay otro separador antes con 3 dígitos entre ellos, es de miles
-                otro_sep_pos = -1
-                for i, char in enumerate(antes):
-                    if char in _SEPARADORES_MILES:
-                        otro_sep_pos = i
+            # 1-2 dígitos después → probablemente decimal
+            # Pero hay excepciones: "1,23" en español es "1.23"
+            # "1,234" en inglés es "1234" (separador de miles)
+            # Regla: si hay otro separador antes con 3 dígitos entre ellos, es de miles
+            otro_sep_pos = -1
+            for i, char in enumerate(antes):
+                if char in _SEPARADORES_MILES:
+                    otro_sep_pos = i
 
-                if otro_sep_pos >= 0:
-                    # Hay otro separador antes
-                    digitos_entre = ultimo_sep_pos - otro_sep_pos - 1
-                    if digitos_entre == 3:
-                        # "1,234,56" → el último es decimal (formato europeo)
-                        es_decimal = len(despues) != 3
-                    else:
-                        es_decimal = True
+            if otro_sep_pos >= 0:
+                # Hay otro separador antes
+                digitos_entre = ultimo_sep_pos - otro_sep_pos - 1
+                if digitos_entre == 3:
+                    # "1,234,56" → el último es decimal (formato europeo)
+                    es_decimal = len(despues) != 3
                 else:
-                    # Solo un separador
-                    # "1,234" → si tiene 3 dígitos después, asumo miles (inglés)
-                    # "1,23" → decimal
-                    if len(despues) == 3 and len(antes) > 0:
-                        # Ambiguo: podría ser "1,234" (1234) o "1,234" (1.234)
-                        # Asumimos separador de miles si todos los separadores son iguales
-                        # y el patrón es consistente
-                        es_decimal = False
-                    else:
-                        es_decimal = True
+                    es_decimal = True
+            else:
+                # Solo un separador
+                # "1,234" → si tiene 3 dígitos después, asumo miles (inglés)
+                # "1,23" → decimal
+                if len(despues) == 3 and len(antes) > 0:
+                    # Ambiguo: podría ser "1,234" (1234) o "1,234" (1.234)
+                    # Asumimos separador de miles si todos los separadores son iguales
+                    # y el patrón es consistente
+                    es_decimal = False
+                else:
+                    es_decimal = True
 
         # Construir el número normalizado
         if es_decimal:
@@ -391,9 +391,7 @@ def _extraer_cifras_pptx_graficas(
                 # Extraer valores de series
                 try:
                     for num_serie, serie in enumerate(chart.series, start=1):
-                        nombre_serie = (
-                            str(serie.name) if serie.name else f"serie {num_serie}"
-                        )
+                        nombre_serie = str(serie.name) if serie.name else f"serie {num_serie}"
 
                         # Los valores están en serie.values
                         valores = serie.values
@@ -404,9 +402,7 @@ def _extraer_cifras_pptx_graficas(
                                         f"diapositiva {num_slide}, gráfica '{nombre_grafica}', "
                                         f"serie '{nombre_serie}', punto {num_punto}"
                                     )
-                                    resultados.append(
-                                        (ubicacion, valor, "grafica", str(valor))
-                                    )
+                                    resultados.append((ubicacion, valor, "grafica", str(valor)))
 
                         # También verificar categorías si son numéricas
                         # Las categorías están en el plot, no en la serie

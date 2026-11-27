@@ -13,18 +13,24 @@ ingesta:
   umbral_acumulado: 0.001
 
 modelo:
+  # Bundles versionados: artefactos/modelos/mpdc/v{N}/ y el puntero champion.json
+  dir_modelos: artefactos/modelos/mpdc
+
   # Indicadores que predice el MPDC (PRD §6.1). `peso` es la exposición con la que se pondera
   # (PRD §6.2). El numerador MARGEN se arma en código según `acumulado` de
   # config/indicadores.yaml (ver basecards.modelo.indicadores).
+  # `rango`: la banda predicha se recorta a este intervalo (null = sin límite).
   objetivos:
     tasa_ncl:
       numerador: NCLAMTS
       denominador: ENRAMTS
       peso: ENRAMTS
+      rango: [0, null]   # con la NCL acumulada sobre el saldo del mes puede pasar de 1
     tasa_over30:
       numerador: OVER30ACCTS
       denominador: ENRACCTS
       peso: ENRACCTS
+      rango: [0, 1]
     margen_por_cuenta:
       numerador: MARGEN
       denominador: ACCOUNTS
@@ -94,3 +100,16 @@ modelo:
       random_state: 42
       n_jobs: -1
       verbose: -1
+
+  # Promoción a champion (Manual §5.3): cobertura CQR de la banda 5-95 en este rango
+  # y mejor pinball q50 del backtest que el champion actual
+  promocion:
+    cobertura_min: 0.85
+    cobertura_max: 0.95
+
+  # MOB al que se proyecta cada cohorte para el ranking y el nivel de riesgo
+  horizonte_ranking_mob: 12
+
+  # Nivel de riesgo: percentiles de la tasa NCL esperada a `horizonte_ranking_mob`
+  nivel_riesgo:
+    percentiles: {medio: 0.50, alto: 0.80, critico: 0.95}

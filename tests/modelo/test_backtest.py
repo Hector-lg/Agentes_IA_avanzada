@@ -11,14 +11,9 @@ import pytest
 from basecards.ingesta import ingerir_csv, perf_month
 from basecards.ingesta.corte import meses_entre
 from basecards.modelo.backtest import correr_backtest, main, origenes_backtest
+from basecards.modelo.bundle import etiqueta_cuantil, ordenar_cuantiles
 from basecards.modelo.config import LLAVE_COHORTE, cargar_config
-from basecards.modelo.entrenar import (
-    EntrenamientoError,
-    cargar_corte,
-    etiqueta_cuantil,
-    ordenar_cuantiles,
-    preparar_datos,
-)
+from basecards.modelo.entrenar import EntrenamientoError, cargar_corte, preparar_datos
 
 OBJETIVOS = {"tasa_ncl", "tasa_over30", "margen_por_cuenta"}
 

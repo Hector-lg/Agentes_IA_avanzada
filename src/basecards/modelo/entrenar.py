@@ -1,21 +1,28 @@
-"""E2 — Datos de entrenamiento y modelos cuantílicos del MPDC (PRD §6.3, Manual §5).
+"""E2 — Entrenamiento del MPDC (PRD §6.3–6.4, Manual §5).
 
-- `cargar_corte`: lee el Parquet del corte (E1) y se niega a usarlo si la validación lo dictaminó
-  `no apto`, salvo con `forzar=True`.
-- `preparar_datos`: corte anterior derivado (PERF_MONTH < corte) sin las filas que fallan las reglas
-  críticas R-14/R-15, con nulos o sin exposición. Con `rapido=True` usa una fracción de las
-  cohortes, estratificada por VINTAGE × STRATEGY.
-- `ajustar_cuantiles` / `predecir_cuantiles`: un LightGBM cuantílico por indicador y cuantil
-  (3 indicadores × q05/q50/q95 = 9 modelos), ponderado por la exposición del indicador.
-- `ajustar_m4`: modelo auxiliar M4, tasa Over30 a 3 MOB a partir de sus rezagos.
+Flujo de `entrenar`:
+1. `cargar_corte`: lee el Parquet del corte (E1) y se niega a usarlo si la validación lo dictaminó
+   `no apto`, salvo con `forzar=True`.
+2. `preparar_datos`: corte anterior derivado (PERF_MONTH < corte) sin las filas que fallan las reglas
+   críticas R-14/R-15, con nulos o sin exposición. Con `rapido=True` usa una fracción de las
+   cohortes, estratificada por VINTAGE × STRATEGY.
+3. Backtest con origen móvil (`basecards.modelo.backtest`), que además calibra la banda con CQR.
+4. Modelos finales: 9 LightGBM cuantílicos (`ajustar_cuantiles`) y el auxiliar M4 (`ajustar_m4`).
+5. Bundle versionado con su ficha del modelo; pasa a `champion` solo si mejora la pinball q50 del
+   backtest y la cobertura CQR queda en 85–95% (Manual §5.3).
 
-El backtest con origen móvil está en `basecards.modelo.backtest`.
+CLI: python -m basecards.modelo.entrenar --corte 202609 [--rapido] [--forzar] [--n-estimators N]
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import logging
+import sys
 import time
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -23,9 +30,27 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
+from basecards import __version__
 from basecards.ingesta.corte import leer_corte, leer_manifiesto, sumar_meses
-from basecards.modelo.config import LLAVE_COHORTE
-from basecards.modelo.features import FEATURES, FEATURES_M4, construir_tabla, matriz
+from basecards.modelo.bundle import (
+    MPDC,
+    dir_modelos,
+    etiqueta_cuantil,
+    ordenar_cuantiles,
+    sha256,
+    version_champion,
+)
+from basecards.modelo.config import LLAVE_COHORTE, cargar_config, cargar_indicadores
+from basecards.modelo.features import (
+    FEATURES,
+    FEATURES_M4,
+    agregar_rezagos_over30,
+    construir_tabla,
+    filas_a_mob,
+    matriz,
+    niveles_categoricos,
+)
+from basecards.modelo.ficha import ficha_modelo
 from basecards.soporte.config import cargar_reglas
 
 log = logging.getLogger("basecards.modelo.entrenar")
@@ -35,14 +60,13 @@ class EntrenamientoError(RuntimeError):
     pass
 
 
-def etiqueta_cuantil(q: float) -> str:
-    """0.05 → "q05", 0.5 → "q50", 0.95 → "q95"."""
-    return f"q{round(q * 100):02d}"
-
-
-def ordenar_cuantiles(pred: np.ndarray) -> np.ndarray:
-    """Si los cuantiles se cruzan (q05 > q50 o q50 > q95), se ordenan por fila (Manual §5.2)."""
-    return np.sort(pred, axis=1)
+@dataclass
+class ResultadoEntrenamiento:
+    version: int
+    ruta: Path
+    promovido: bool
+    motivo_promocion: str
+    metricas: dict[str, Any]
 
 
 # --------------------------------------------------------------------------------------------
@@ -182,3 +206,229 @@ def ajustar_m4(
         sample_weight=sub["PESO_OBJETIVO"].to_numpy(dtype="float64"),
     )
     return m.booster_
+
+
+# --------------------------------------------------------------------------------------------
+# Promoción y guardado
+# --------------------------------------------------------------------------------------------
+def decidir_promocion(resumen: dict[str, Any], cfg: dict[str, Any], base: Path) -> tuple[bool, str]:
+    """`champion` solo si la cobertura CQR queda en rango y mejora la pinball q50 del actual."""
+    p = cfg["modelo"]["promocion"]
+    lo, hi = p["cobertura_min"], p["cobertura_max"]
+    cobs = {o: r["cobertura_cqr"] for o, r in resumen["objetivos"].items()}
+    fuera = {o: round(c, 4) for o, c in cobs.items() if not lo <= c <= hi}
+    if fuera:
+        return False, f"cobertura CQR fuera de {lo:.0%}–{hi:.0%}: {fuera}"
+    actual = version_champion(base)
+    if actual is None:
+        return True, f"primer modelo; cobertura CQR en {lo:.0%}–{hi:.0%}"
+    previo = json.loads((base / f"v{actual}" / "bundle.json").read_text(encoding="utf-8"))
+    comunes = [o for o in resumen["objetivos"] if o in previo["metricas"]["objetivos"]]
+    if not comunes:
+        return False, f"no hay indicadores comparables con v{actual}"
+    rel = float(
+        np.mean(
+            [
+                resumen["objetivos"][o]["pinball_q50"]
+                / previo["metricas"]["objetivos"][o]["pinball_q50"]
+                for o in comunes
+            ]
+        )
+    )
+    if rel < 1.0:
+        return True, f"mejora la pinball q50 de v{actual} (relativa {rel:.4f}) y la cobertura"
+    return False, f"no mejora la pinball q50 de v{actual} (relativa {rel:.4f})"
+
+
+def _siguiente_version(base: Path) -> int:
+    vs = [int(p.name[1:]) for p in base.glob("v*") if p.name[1:].isdigit()]
+    return max(vs, default=0) + 1
+
+
+def guardar_bundle(
+    base: Path,
+    modelos: dict[str, list[lgb.Booster]],
+    m4: lgb.Booster,
+    meta: dict[str, Any],
+    detalle_backtest: dict[str, Any],
+) -> Path:
+    """Escribe v{N}/ con los modelos, sus SHA-256, el backtest y la ficha del modelo."""
+    ruta = base / f"v{meta['version']}"
+    (ruta / "modelos").mkdir(parents=True, exist_ok=False)
+    archivos = {
+        f"modelos/{obj}_{etiqueta_cuantil(q)}.txt": b
+        for obj, bs in modelos.items()
+        for q, b in zip(meta["cuantiles"], bs, strict=True)
+    }
+    archivos["modelos/m4.txt"] = m4
+    meta["hashes"] = {}
+    for nombre, b in archivos.items():
+        b.save_model(str(ruta / nombre))
+        meta["hashes"][nombre] = sha256(ruta / nombre)
+    escribir = {
+        "bundle.json": json.dumps(meta, ensure_ascii=False, indent=2),
+        "backtest.json": json.dumps(detalle_backtest, ensure_ascii=False, indent=2),
+        "model_card.md": ficha_modelo(meta),
+    }
+    for nombre, texto in escribir.items():
+        (ruta / nombre).write_text(texto, encoding="utf-8")
+    return ruta
+
+
+def marcar_champion(base: Path, version: int, motivo: str) -> None:
+    """Mueve el alias `champion` a `version` (bundle.json de cada versión y champion.json)."""
+    for p in base.glob("v*/bundle.json"):
+        m = json.loads(p.read_text(encoding="utf-8"))
+        es = int(m["version"]) == int(version)
+        if m.get("es_champion") != es:
+            m["es_champion"] = es
+            p.write_text(json.dumps(m, ensure_ascii=False, indent=2), encoding="utf-8")
+    puntero = {
+        "version": int(version),
+        "motivo": motivo,
+        "fecha": datetime.now(UTC).isoformat(timespec="seconds"),
+    }
+    (base / "champion.json").write_text(
+        json.dumps(puntero, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+# --------------------------------------------------------------------------------------------
+# Orquestación
+# --------------------------------------------------------------------------------------------
+def entrenar(
+    corte: int,
+    *,
+    df: pd.DataFrame | None = None,
+    dir_cortes: str | Path | None = None,
+    dir_base: str | Path | None = None,
+    rapido: bool = False,
+    n_estimators: int | None = None,
+    forzar: bool = False,
+) -> ResultadoEntrenamiento:
+    """Corte → backtest con CQR → modelos finales → bundle versionado (y `champion` si procede)."""
+    # Import diferido: backtest importa las funciones de este módulo
+    from basecards.modelo.backtest import backtest
+
+    t0 = time.perf_counter()
+    cfg = cargar_config()
+    mcfg = cfg["modelo"]
+    base = dir_modelos(dir_base)
+
+    manifiesto: dict[str, Any] = {}
+    if df is None:
+        df, manifiesto = cargar_corte(corte, dir_cortes=dir_cortes, forzar=forzar)
+    ent, info = preparar_datos(df, corte, cfg, rapido=rapido)
+    hasta = info["entrenado_hasta"]
+    log.info(
+        "Entrenamiento: %d filas, %d cohortes, hasta %s",
+        info["filas_entrenamiento"],
+        info["cohortes_entrenamiento"],
+        hasta,
+    )
+
+    log.info("Backtest con origen móvil…")
+    bt = backtest(ent, hasta, cfg, n_estimators)
+
+    log.info("Modelos finales…")
+    niveles = niveles_categoricos(ent)
+    modelos = ajustar_cuantiles(ent, niveles, cfg, n_estimators)
+    m4cfg = mcfg["m4"]
+    m4 = ajustar_m4(agregar_rezagos_over30(ent, m4cfg["rezagos"], m4cfg["adelanto"]), niveles, cfg)
+
+    # Umbrales del nivel de riesgo: percentiles de la tasa NCL esperada (q50) al MOB horizonte
+    h = int(mcfg["horizonte_ranking_mob"])
+    ncl_h = predecir_cuantiles(modelos, filas_a_mob(ent, h), niveles)["tasa_ncl"][:, 1]
+    pct = mcfg["nivel_riesgo"]["percentiles"]
+    umbrales = {k: float(np.quantile(ncl_h, v)) for k, v in pct.items()}
+
+    base.mkdir(parents=True, exist_ok=True)
+    version = _siguiente_version(base)
+    meta: dict[str, Any] = {
+        "version": version,
+        "creado": datetime.now(UTC).isoformat(timespec="seconds"),
+        "version_basecards": __version__,
+        "corte": int(corte),
+        "entrenado_hasta": int(hasta),
+        "rapido": bool(rapido),
+        "acumulado": bool(cargar_indicadores().get("acumulado", False)),
+        "features": FEATURES,
+        "features_m4": FEATURES_M4,
+        "niveles": niveles,
+        "cuantiles": mcfg["cuantiles"],
+        "objetivos": mcfg["objetivos"],
+        "lgbm": {**mcfg["lgbm"], **({"n_estimators": n_estimators} if n_estimators else {})},
+        "cqr": {**mcfg["cqr"], "offsets": bt["cqr_offsets"]},
+        "m4": {**m4cfg, **bt["m4_residuos"]},
+        "nivel_riesgo": {"horizonte_mob": h, "percentiles": pct, "umbrales": umbrales},
+        "horizonte_ranking_mob": h,
+        "promocion_cfg": mcfg["promocion"],
+        "datos": {
+            **info,
+            "sha256_csv": (manifiesto.get("fuente") or {}).get("sha256"),
+            "sha256_parquet": (manifiesto.get("parquet") or {}).get("sha256"),
+            "dictamen_e1": (manifiesto.get("validacion") or {}).get("dictamen"),
+        },
+        "metricas": bt["resumen"],
+        "es_champion": False,
+    }
+    promover, motivo = decidir_promocion(bt["resumen"], cfg, base)
+    meta["promocion"] = {"promovido": promover, "motivo": motivo}
+    ruta = guardar_bundle(base, modelos, m4, meta, {"por_origen": bt["por_origen"]})
+    if promover:
+        marcar_champion(base, version, motivo)
+    log.info(
+        "Bundle v%d en %s (%.0fs). Champion: %s (%s)",
+        version,
+        ruta,
+        time.perf_counter() - t0,
+        promover,
+        motivo,
+    )
+
+    # El bundle recién guardado se puede cargar y predecir
+    MPDC(ruta).predecir(ent.head(5))
+    return ResultadoEntrenamiento(version, ruta, promover, motivo, bt["resumen"])
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="basecards.modelo.entrenar", description="Entrena el MPDC")
+    p.add_argument("--corte", type=int, default=202609)
+    p.add_argument(
+        "--dir-cortes", default=None, help="Raíz de los cortes (por defecto data/cortes)"
+    )
+    p.add_argument("--dir-modelos", default=None, help="Raíz de los bundles (modelo.dir_modelos)")
+    p.add_argument("--rapido", action="store_true", help="Muestra estratificada de cohortes")
+    p.add_argument("--n-estimators", type=int, default=None, help="Sobrescribe n_estimators")
+    p.add_argument("--forzar", action="store_true", help="Entrena aunque el dictamen sea 'no apto'")
+    args = p.parse_args(argv)
+    for s in (sys.stdout, sys.stderr):
+        if hasattr(s, "reconfigure"):
+            s.reconfigure(encoding="utf-8")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    try:
+        res = entrenar(
+            args.corte,
+            dir_cortes=args.dir_cortes,
+            dir_base=args.dir_modelos,
+            rapido=args.rapido,
+            n_estimators=args.n_estimators,
+            forzar=args.forzar,
+        )
+    except (EntrenamientoError, FileNotFoundError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+    resumen = {
+        "version": res.version,
+        "ruta": str(res.ruta),
+        "champion": res.promovido,
+        "motivo": res.motivo_promocion,
+        "metricas": res.metricas["objetivos"],
+        "m4": res.metricas.get("m4"),
+    }
+    print(json.dumps(resumen, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

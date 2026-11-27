@@ -26,6 +26,7 @@ import pandas as pd
 from basecards.ingesta.corte import sumar_meses
 from basecards.modelo import metricas as M
 from basecards.modelo.baselines import BaselineArbol, BaselineCurva
+from basecards.modelo.bundle import etiqueta_cuantil
 from basecards.modelo.calibracion import (
     cobertura_validacion_cruzada,
     no_conformidad,
@@ -38,7 +39,6 @@ from basecards.modelo.entrenar import (
     ajustar_cuantiles,
     ajustar_m4,
     cargar_corte,
-    etiqueta_cuantil,
     mascara_m4,
     predecir_cuantiles,
     preparar_datos,

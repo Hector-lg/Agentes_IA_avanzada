@@ -137,3 +137,14 @@ def corte_parquet(tmp_path_factory, cubo):
     cubo.to_csv(ruta_csv, index=False)
     res = ingerir_csv(ruta_csv, 202609, dir_cortes=d / "cortes")
     return res, d
+
+
+@pytest.fixture(scope="session")
+def modelo_entrenado(tmp_path_factory, corte_parquet):
+    """MPDC entrenado con el cubo de prueba (25 árboles) en un directorio temporal."""
+    from basecards.modelo.entrenar import entrenar
+
+    _, d = corte_parquet
+    dir_modelos = tmp_path_factory.mktemp("modelos")
+    res = entrenar(202609, dir_cortes=d / "cortes", dir_base=dir_modelos, n_estimators=25)
+    return res, dir_modelos, d / "cortes"

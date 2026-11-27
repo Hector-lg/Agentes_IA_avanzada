@@ -100,6 +100,20 @@ def test_backtest_con_origen_movil(resultado):
         assert meses_entre(o["origen"], o["evaluado_hasta"]) == 6
 
 
+def test_backtest_calibra_cqr_y_mide_m4(resultado, cfg):
+    n_tramos = len(cfg["modelo"]["cqr"]["tramos_mob"])
+    for obj, m in resultado["resumen"]["objetivos"].items():
+        assert 0 <= m["cobertura_cqr"] <= 1 and 0 <= m["cobertura_cqr_ponderada"] <= 1, obj
+        assert set(m["cobertura_cqr_por_familia"]) <= {"Recalibration", "DARIA"}
+        off = resultado["cqr_offsets"][obj]
+        assert len(off["tramo"]) == n_tramos and all(np.isfinite(off["tramo"]))
+    m4 = resultado["resumen"]["m4"]
+    assert m4["n"] > 0 and m4["mae"] >= 0 and math.isfinite(m4["mape_agregado_pct"])
+    res = resultado["m4_residuos"]
+    assert len(res["residuo_q05"]) == len(res["residuo_q95"]) == n_tramos
+    assert all(lo <= hi for lo, hi in zip(res["residuo_q05"], res["residuo_q95"], strict=True))
+
+
 def test_cli(tmp_path, corte_parquet, capsys):
     _, d = corte_parquet
     salida = tmp_path / "backtest.json"

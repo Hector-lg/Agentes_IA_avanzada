@@ -7,6 +7,7 @@
   cohortes, estratificada por VINTAGE × STRATEGY.
 - `ajustar_cuantiles` / `predecir_cuantiles`: un LightGBM cuantílico por indicador y cuantil
   (3 indicadores × q05/q50/q95 = 9 modelos), ponderado por la exposición del indicador.
+- `ajustar_m4`: modelo auxiliar M4, tasa Over30 a 3 MOB a partir de sus rezagos.
 
 El backtest con origen móvil está en `basecards.modelo.backtest`.
 """
@@ -24,7 +25,7 @@ import pandas as pd
 
 from basecards.ingesta.corte import leer_corte, leer_manifiesto, sumar_meses
 from basecards.modelo.config import LLAVE_COHORTE
-from basecards.modelo.features import FEATURES, construir_tabla, matriz
+from basecards.modelo.features import FEATURES, FEATURES_M4, construir_tabla, matriz
 from basecards.soporte.config import cargar_reglas
 
 log = logging.getLogger("basecards.modelo.entrenar")
@@ -158,3 +159,26 @@ def predecir_cuantiles(
         obj: ordenar_cuantiles(np.column_stack([b.predict(X) for b in bs]))
         for obj, bs in modelos.items()
     }
+
+
+def mascara_m4(tabla_m4: pd.DataFrame) -> pd.Series:
+    """Filas útiles para M4: tienen los 3 rezagos de Over30, el objetivo en t+3 y exposición."""
+    return (
+        tabla_m4["O30_OBJETIVO"].notna()
+        & tabla_m4["O30_T2"].notna()
+        & (tabla_m4["PESO_OBJETIVO"].fillna(0) > 0)
+    )
+
+
+def ajustar_m4(
+    tabla_m4: pd.DataFrame, niveles: dict[str, list[str]], cfg: dict[str, Any]
+) -> lgb.Booster:
+    """M4: tasa Over30 en t+3 con rezagos t, t−1, t−2 y pendiente (LightGBM, pérdida L1)."""
+    sub = tabla_m4.loc[mascara_m4(tabla_m4)]
+    m = lgb.LGBMRegressor(**cfg["modelo"]["m4"]["lgbm"])
+    m.fit(
+        matriz(sub, niveles, FEATURES_M4),
+        sub["O30_OBJETIVO"].to_numpy(),
+        sample_weight=sub["PESO_OBJETIVO"].to_numpy(dtype="float64"),
+    )
+    return m.booster_

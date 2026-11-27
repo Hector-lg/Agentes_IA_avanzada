@@ -33,6 +33,15 @@ _EXPORTADOS: dict[str, str] = {
     "docx_ensamblar": "docx_ensamblar",
     "XlsxError": "xlsx_ensamblar",
     "xlsx_ensamblar": "xlsx_ensamblar",
+    "Discrepancia": "verificacion",
+    "ResultadoVerificacion": "verificacion",
+    "VerificacionError": "verificacion",
+    "documento_verificar_cifras": "verificacion",
+    "ConversionError": "conversion",
+    "ResultadoComando": "conversion",
+    "SandboxRunner": "conversion",
+    "documento_convertir": "conversion",
+    "documento_miniaturas": "conversion",
 }
 
 

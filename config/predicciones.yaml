@@ -1,0 +1,51 @@
+# Contrato de predicciones_cohorte (E2 → E3). Integrante 2 lee esto en K-01.
+# fuente: mock | parquet | postgres (postgres = Día 6 / Integrante 1)
+
+fuente: mock
+corte_default: 202609
+ruta_mock: data/predicciones/mock
+ruta_parquet: data/predicciones/{corte}/predicciones.parquet
+
+indicadores:
+  - tasa_ncl
+  - tasa_over30
+
+# Exposición mínima para evaluar K-01 (Manual §5.4)
+enraccts_min: 200
+
+# Umbral de monto NCL en exceso que fuerza severidad crítica
+umbral_monto_critico: 50000.0
+
+columnas_llave:
+  - VINTAGE
+  - STRATEGY
+  - STRATEGY_SEGMENT
+  - PRODUCT
+  - CHANNEL
+  - AGE_TAG
+  - SCORE_TAG
+  - MOB
+
+columnas_requeridas:
+  - VINTAGE
+  - STRATEGY
+  - STRATEGY_SEGMENT
+  - PRODUCT
+  - CHANNEL
+  - AGE_TAG
+  - SCORE_TAG
+  - MOB
+  - indicador
+  - q05
+  - q50
+  - q95
+  - observado
+  - desviacion
+  - fuera_de_intervalo
+  - enraccts
+  - nclamts
+  - driver_1
+  - driver_2
+  - driver_3
+  - modelo_nombre
+  - modelo_version

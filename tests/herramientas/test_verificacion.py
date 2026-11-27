@@ -463,8 +463,6 @@ class TestComparacionValores:
         )
         assert resultado2.ok is False
 
-
-
     """Pruebas de integración con archivos .pptx reales.
 
     Se expandirán en Commit 2 con archivos de prueba que contengan

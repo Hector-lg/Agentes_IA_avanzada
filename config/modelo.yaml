@@ -39,3 +39,36 @@ modelo:
   familias:
     Recalibration: ["14.Recalibration 1.0", "15.Recalibration 2.0", "r.Reca champ"]
     DARIA: ["DARIA 1.6", "DARIA 2.0"]
+
+  # Banda de predicción: un modelo LightGBM cuantílico por indicador y cuantil (3 × 3 = 9)
+  cuantiles: [0.05, 0.5, 0.95]
+
+  # Exposición mínima para entrenar. El PRD propone ENRACCTS >= 200, pero en el CSV sintético
+  # solo 740 de 1,089,833 filas (0.07%) lo cumplen: las cohortes son muy granulares (mediana de
+  # 8 cuentas con saldo). Se entrena con todas las filas con exposición > 0 y se pondera por
+  # exposición; con datos reales se puede subir este umbral.
+  exposicion_minima:
+    columna: ENRACCTS
+    valor: 1
+
+  # Hiperparámetros iniciales (Manual §5.2)
+  lgbm:
+    n_estimators: 600
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 50
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    random_state: 42
+    n_jobs: -1
+    verbose: -1
+
+  # Validación fuera de tiempo con origen móvil (PRD §6.4)
+  backtest:
+    n_origenes: 4
+    horizonte: 6   # se evalúa en los 6 meses de desempeño posteriores al origen
+    paso: 3        # meses entre orígenes
+
+  # --rapido: fracción de cohortes que se usa, estratificada por VINTAGE × STRATEGY (Manual §5.1)
+  fraccion_rapido: 0.2

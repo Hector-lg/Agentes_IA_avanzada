@@ -13,6 +13,9 @@ pip install -r requirements.txt; pip install -e .
 
 # E1 — CSV del corte → Parquet tipado (+ validación del Agente de Soporte)
 python -m basecards.ingesta --csv "ruta\base_cards_sintetica.csv" --corte 202609 --validar
+
+# E2 — Backtest del MPDC con origen móvil (--rapido: 20% de las cohortes)
+python -m basecards.modelo.backtest --corte 202609 --rapido --salida backtest_202609.json
 ```
 
 En Linux es igual (`source .venv/bin/activate`). `data/` no se versiona: el CSV y el Parquet
@@ -22,6 +25,7 @@ viven solo en cada máquina.
 |---|---|
 | Ingesta (sin validación) | 7–11 s para 1,089,833 filas (193.5 MB CSV → 37.3 MB Parquet zstd) |
 | Validación E1 del Agente de Soporte (`--validar`) | ~90 s, dictamen `apto`; ~35 s son de P-07, que corre desde que `acumulado: true` (issue #5) |
+| Backtest `--rapido` (20% de cohortes, 600 árboles, 4 orígenes × 9 modelos) | ~4 min |
 
 ## 2. E1 — Ingesta (`src/basecards/ingesta/`, issue #4)
 
@@ -132,3 +136,46 @@ Las fórmulas y los pesos están en `config/modelo.yaml` (`modelo.objetivos`).
 | `tasa_ncl` (mediana / p99) | 0.048 / 0.413 (puede pasar de 1 porque la NCL es acumulada y ENRAMTS es del mes) |
 | `tasa_over30` (mediana / p99) | 0.125 / 0.500 |
 | `margen_por_cuenta` | negativo en todas las filas: a MOB 24 la NCL acumulada por cuenta (~1,135) supera al REVENUE acumulado (~452) |
+
+## 4. E2 — Entrenamiento y backtest (`entrenar.py`, `backtest.py`, issue #7)
+
+### 4.1 Datos de entrenamiento
+
+`cargar_corte(corte)` lee el Parquet y **se niega a usar un corte con dictamen `no apto`** en la
+validación E1, salvo con `forzar=True` (`--forzar` en la CLI). Si el corte no tiene dictamen, avisa.
+
+`preparar_datos` usa el **corte anterior derivado** (PERF_MONTH ≤ 202608) y excluye las filas que
+fallan R-14/R-15 (con la tolerancia de `config/reglas/base_cards.yaml`), las que tienen nulos y las
+que no tienen exposición. El reporte `filas_excluidas` dice cuántas salen por cada motivo. La
+exposición mínima es `ENRACCTS ≥ 1` (`modelo.exposicion_minima`): el PRD propone 200, pero eso deja
+solo 740 filas; queda pendiente decidirlo en equipo. Con `--rapido` se usa el 20% de las cohortes
+completas, estratificado por VINTAGE × STRATEGY.
+
+### 4.2 Modelos y baselines
+
+- **9 modelos** `LGBMRegressor(objective="quantile")`: 3 indicadores × q05/q50/q95, ponderados por
+  ENRAMTS, ENRACCTS y ACCOUNTS. Hiperparámetros en `modelo.lgbm` (600 árboles, `learning_rate`
+  0.03, 31 hojas). Si los cuantiles predichos se cruzan, se ordenan por fila.
+- **Baselines** (`baselines.py`): curva promedio por MOB × familia (cuantiles ponderados, con
+  respaldo al MOB y a la curva global) y árbol de regresión de profundidad 6 sobre MOB, FAMILIA y
+  SCORE_ORD.
+- **Métricas** (`metricas.py`): pinball por cuantil, MAE y RMSE ponderados, cobertura de la banda
+  5–95, Spearman del ranking estrategia × segmento y MAPE agregado (razón de sumas).
+
+### 4.3 Backtest con origen móvil
+
+Cuatro orígenes, cada 3 meses hacia atrás: 202602, 202511, 202508 y 202505. En cada uno se entrena
+con PERF_MONTH ≤ origen y se evalúa en los 6 meses siguientes, que el modelo no vio.
+
+Resultado con el corte 202609 en modo `--rapido` (12,492 cohortes, 205,101 filas, 600 árboles):
+
+| Indicador | Mejora pinball q50 vs curva | vs árbol | MAE MPDC / curva / árbol | Cobertura cruda 5–95 |
+|---|---|---|---|---|
+| `tasa_ncl` | +70.9% | +28.7% | 0.0131 / 0.0451 / 0.0184 | 83.5% |
+| `tasa_over30` | +67.5% | +31.9% | 0.0224 / 0.0687 / 0.0328 | 85.6% |
+| `margen_por_cuenta` | +68.8% | +48.4% | 165 / 529 / 320 | 83.2% |
+
+- El MPDC supera a los dos baselines en los 3 indicadores y en los 4 orígenes.
+- El ranking estrategia × segmento por margen predicho coincide con el observado: Spearman 0.991.
+- La banda cruda cubre ~84%, por debajo del 90% que pide el PRD. La calibración CQR del issue #8
+  usa los residuos de este backtest para corregirla.

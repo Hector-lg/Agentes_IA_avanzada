@@ -146,5 +146,7 @@ def modelo_entrenado(tmp_path_factory, corte_parquet):
 
     _, d = corte_parquet
     dir_modelos = tmp_path_factory.mktemp("modelos")
-    res = entrenar(202609, dir_cortes=d / "cortes", dir_base=dir_modelos, n_estimators=25)
+    res = entrenar(
+        202609, dir_cortes=d / "cortes", dir_base=dir_modelos, n_estimators=25, mlflow=False
+    )
     return res, dir_modelos, d / "cortes"

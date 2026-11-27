@@ -10,8 +10,9 @@ Flujo de `entrenar`:
 4. Modelos finales: 9 LightGBM cuantílicos (`ajustar_cuantiles`) y el auxiliar M4 (`ajustar_m4`).
 5. Bundle versionado con su ficha del modelo; pasa a `champion` solo si mejora la pinball q50 del
    backtest y la cobertura CQR queda en 85–95% (Manual §5.3).
+6. Registro en MLflow (`basecards.modelo.registro`), con alias `champion` si se promovió.
 
-CLI: python -m basecards.modelo.entrenar --corte 202609 [--rapido] [--forzar] [--n-estimators N]
+CLI: python -m basecards.modelo.entrenar --corte 202609 [--rapido] [--forzar] [--sin-mlflow]
 """
 
 from __future__ import annotations
@@ -67,6 +68,7 @@ class ResultadoEntrenamiento:
     promovido: bool
     motivo_promocion: str
     metricas: dict[str, Any]
+    run_id: str | None = None
 
 
 # --------------------------------------------------------------------------------------------
@@ -305,8 +307,12 @@ def entrenar(
     rapido: bool = False,
     n_estimators: int | None = None,
     forzar: bool = False,
+    mlflow: bool = True,
 ) -> ResultadoEntrenamiento:
-    """Corte → backtest con CQR → modelos finales → bundle versionado (y `champion` si procede)."""
+    """Corte → backtest con CQR → modelos finales → bundle versionado (y `champion` si procede).
+
+    Con `mlflow=True` también registra el run y el modelo pyfunc (`basecards.modelo.registro`).
+    """
     # Import diferido: backtest importa las funciones de este módulo
     from basecards.modelo.backtest import backtest
 
@@ -388,7 +394,17 @@ def entrenar(
 
     # El bundle recién guardado se puede cargar y predecir
     MPDC(ruta).predecir(ent.head(5))
-    return ResultadoEntrenamiento(version, ruta, promover, motivo, bt["resumen"])
+
+    run_id = None
+    if mlflow:
+        try:
+            from basecards.modelo.registro import registrar
+
+            run_id = registrar(ruta, meta, promover)
+        except Exception as e:  # noqa: BLE001
+            # MLflow es trazabilidad: si falla, el bundle local sigue siendo válido
+            log.warning("No se pudo registrar en MLflow: %s", e)
+    return ResultadoEntrenamiento(version, ruta, promover, motivo, bt["resumen"], run_id)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -401,6 +417,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--rapido", action="store_true", help="Muestra estratificada de cohortes")
     p.add_argument("--n-estimators", type=int, default=None, help="Sobrescribe n_estimators")
     p.add_argument("--forzar", action="store_true", help="Entrena aunque el dictamen sea 'no apto'")
+    p.add_argument("--sin-mlflow", action="store_true", help="No registra el modelo en MLflow")
     args = p.parse_args(argv)
     for s in (sys.stdout, sys.stderr):
         if hasattr(s, "reconfigure"):
@@ -414,6 +431,7 @@ def main(argv: list[str] | None = None) -> int:
             rapido=args.rapido,
             n_estimators=args.n_estimators,
             forzar=args.forzar,
+            mlflow=not args.sin_mlflow,
         )
     except (EntrenamientoError, FileNotFoundError) as e:
         print(f"ERROR: {e}", file=sys.stderr)
@@ -425,6 +443,7 @@ def main(argv: list[str] | None = None) -> int:
         "motivo": res.motivo_promocion,
         "metricas": res.metricas["objetivos"],
         "m4": res.metricas.get("m4"),
+        "mlflow_run": res.run_id,
     }
     print(json.dumps(resumen, ensure_ascii=False, indent=2))
     return 0

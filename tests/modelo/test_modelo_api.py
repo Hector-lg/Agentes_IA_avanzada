@@ -99,6 +99,7 @@ def test_cli_y_segunda_version(modelo_entrenado, tmp_path, capsys):
     """La CLI deja v1 champion; un modelo peor (2 árboles) crea v2 sin quitarle el alias a v1."""
     _, _, dir_cortes = modelo_entrenado
     args = ["--corte", "202609", "--dir-cortes", str(dir_cortes), "--dir-modelos", str(tmp_path)]
+    args.append("--sin-mlflow")
     assert main([*args, "--n-estimators", "25"]) == 0
     primera = json.loads(capsys.readouterr().out)
     assert primera["version"] == 1 and primera["champion"] is True
@@ -112,7 +113,7 @@ def test_cli_y_segunda_version(modelo_entrenado, tmp_path, capsys):
 
 def test_cli_rechaza_corte_inexistente(tmp_path, capsys):
     args = ["--corte", "202609", "--dir-cortes", str(tmp_path / "no_existe")]
-    assert main([*args, "--dir-modelos", str(tmp_path / "modelos")]) == 2
+    assert main([*args, "--dir-modelos", str(tmp_path / "modelos"), "--sin-mlflow"]) == 2
     assert "ERROR" in capsys.readouterr().err
     assert not (tmp_path / "modelos").exists()  # si no hay datos, no se crea nada
 

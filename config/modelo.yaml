@@ -15,6 +15,9 @@ ingesta:
 modelo:
   # Bundles versionados: artefactos/modelos/mpdc/v{N}/ y el puntero champion.json
   dir_modelos: artefactos/modelos/mpdc
+  # MLflow: experimento de los runs y nombre del modelo en el Model Registry (alias `champion`)
+  experimento_mlflow: mpdc
+  nombre_registro: mpdc
 
   # Indicadores que predice el MPDC (PRD §6.1). `peso` es la exposición con la que se pondera
   # (PRD §6.2). El numerador MARGEN se arma en código según `acumulado` de

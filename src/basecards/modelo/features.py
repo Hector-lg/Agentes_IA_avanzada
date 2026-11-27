@@ -134,6 +134,18 @@ def filas_a_mob(tabla: pd.DataFrame, mob: int) -> pd.DataFrame:
     return calcular_originacion(base).reset_index(drop=True)
 
 
+def tabla_desde_cohortes(df: pd.DataFrame, cfg: dict[str, Any] | None = None) -> pd.DataFrame:
+    """Features de cohortes dadas solo por su llave, el MOB y su originación.
+
+    `df` trae LLAVE_COHORTE, MOB, ACCOUNTS_0, CREDITLINESAMTS_0 y ENRAMTS_0 (y MOB_ORIGEN, que
+    vale 0 si falta). Lo usan el modelo pyfunc de MLflow y la API para cohortes fuera del corte.
+    """
+    out = df.copy()
+    if "MOB_ORIGEN" not in out.columns:
+        out["MOB_ORIGEN"] = 0
+    return calcular_originacion(agregar_familia_score(out, cfg))
+
+
 def agregar_rezagos_over30(
     tabla: pd.DataFrame, rezagos: int = 3, adelanto: int = 3
 ) -> pd.DataFrame:

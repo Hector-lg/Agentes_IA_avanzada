@@ -4,12 +4,17 @@ from __future__ import annotations
 
 from basecards import herramientas
 from basecards.herramientas import (
+    ConversionError,
     DocxError,
     MetricaError,
     PptxError,
+    ResultadoComando,
+    SandboxRunner,
     XlsxError,
     compilar_expresion,
     compilar_metrica,
+    documento_convertir,
+    documento_miniaturas,
     docx_ensamblar,
     formatear_valor,
     metricas_calcular,
@@ -50,9 +55,24 @@ def test_exporta_el_ensamblador_de_xlsx() -> None:
     assert issubclass(XlsxError, Exception)
 
 
+def test_exporta_las_herramientas_de_conversion() -> None:
+    assert callable(documento_convertir)
+    assert callable(documento_miniaturas)
+    assert issubclass(ConversionError, Exception)
+    assert ResultadoComando(codigo=0).codigo == 0
+    assert SandboxRunner is not None
+
+
 def test_dir_incluye_los_simbolos_publicos() -> None:
     visibles = set(dir(herramientas))
     assert {"metricas_calcular", "MetricaError", "skills_leer"} <= visibles
     assert {"pptx_ensamblar", "PptxError"} <= visibles
     assert {"docx_ensamblar", "DocxError"} <= visibles
     assert {"xlsx_ensamblar", "XlsxError"} <= visibles
+    assert {
+        "documento_convertir",
+        "documento_miniaturas",
+        "ConversionError",
+        "ResultadoComando",
+        "SandboxRunner",
+    } <= visibles

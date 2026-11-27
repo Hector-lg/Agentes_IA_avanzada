@@ -37,6 +37,11 @@ _EXPORTADOS: dict[str, str] = {
     "ResultadoVerificacion": "verificacion",
     "VerificacionError": "verificacion",
     "documento_verificar_cifras": "verificacion",
+    "ConversionError": "conversion",
+    "ResultadoComando": "conversion",
+    "SandboxRunner": "conversion",
+    "documento_convertir": "conversion",
+    "documento_miniaturas": "conversion",
 }
 
 

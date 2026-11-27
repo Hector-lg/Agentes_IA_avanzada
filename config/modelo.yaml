@@ -11,3 +11,31 @@ ingesta:
   series_riesgo: [OVER30ACCTS, OVER30AMTS, GCLAMTS, NCLAMTS, RECOVERYAMTS, REVENUE]
   # Una serie se considera acumulada si menos de esta fracción de sus diferencias por MOB es negativa
   umbral_acumulado: 0.001
+
+modelo:
+  # Indicadores que predice el MPDC (PRD §6.1). `peso` es la exposición con la que se pondera
+  # (PRD §6.2). El numerador MARGEN se arma en código según `acumulado` de
+  # config/indicadores.yaml (ver basecards.modelo.indicadores).
+  objetivos:
+    tasa_ncl:
+      numerador: NCLAMTS
+      denominador: ENRAMTS
+      peso: ENRAMTS
+    tasa_over30:
+      numerador: OVER30ACCTS
+      denominador: ENRACCTS
+      peso: ENRACCTS
+    margen_por_cuenta:
+      numerador: MARGEN
+      denominador: ACCOUNTS
+      peso: ACCOUNTS
+
+  # SCORE_ORD: posición del rango de score dentro de su familia (PRD §6.2), del diccionario
+  score_orden:
+    Recalibration: ["<130", "130-140", "141-150", "151-160", "161-170", "171-180", "181-190", "190+"]
+    DARIA: ["a.<=154", "b.155-159", "c.160-164", "d.165-169", "e.170-174", "f.175-189",
+            "g.190-199", "h.200-204", "i.205+"]
+  # FAMILIA: a qué familia de score pertenece cada STRATEGY
+  familias:
+    Recalibration: ["14.Recalibration 1.0", "15.Recalibration 2.0", "r.Reca champ"]
+    DARIA: ["DARIA 1.6", "DARIA 2.0"]

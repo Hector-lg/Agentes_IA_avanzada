@@ -81,3 +81,54 @@ avisa en `avisos`.
 - **C-01 (`soporte/reglas/c_reglas.py`):** convierte a `float64` antes de `clip(lower=1e-9)`. Con
   columnas `Int64` que traen ceros (por ejemplo OVER30ACCTS), pandas lanzaba `TypeError` y
   `--validar` no daba dictamen.
+
+## 3. E2 — Indicadores objetivo y features (`src/basecards/modelo/`, issue #6)
+
+`construir_tabla(df)` recibe el corte tipado (`leer_corte(corte)`) y devuelve una fila por
+cohorte × MOB con los indicadores objetivo, las features y `PERF_MONTH`.
+
+### 3.1 Indicadores objetivo (`indicadores.py`)
+
+| Indicador | Fórmula | Peso (exposición) |
+|---|---|---|
+| `tasa_ncl` | NCLAMTS / ENRAMTS | ENRAMTS |
+| `tasa_over30` | OVER30ACCTS / ENRACCTS | ENRACCTS |
+| `margen_por_cuenta` | MARGEN / ACCOUNTS | ACCOUNTS |
+
+Si el denominador es 0, la tasa queda en NaN (no en `inf`). MARGEN depende de S-01: con
+`acumulado: true`, REVENUE y NCLAMTS ya vienen acumulados al MOB pero los gastos son del mes, así
+que se restan los gastos acumulados de la cohorte: `REVENUE − NCLAMTS − Σ EXPENSES_TOTAL(m ≤ MOB)`.
+Las fórmulas y los pesos están en `config/modelo.yaml` (`modelo.objetivos`).
+
+### 3.2 Features (`features.py`)
+
+| Feature | De dónde sale |
+|---|---|
+| `MOB` | la fila |
+| `SCORE_ORD` | posición del SCORE_TAG dentro de su familia (`<130` = 1 … `190+` = 8; `a.<=154` = 1 … `i.205+` = 9) |
+| `VINTAGE_MES` | mes del año de VINTAGE |
+| `LOG_ACCOUNTS`, `LINEA_PROM` | ACCOUNTS y CREDITLINESAMTS del MOB 0 de la cohorte (originación) |
+| `UTIL_INICIAL` | ENRAMTS / CREDITLINESAMTS del MOB 0; NaN en las filas de MOB 0 |
+| `STRATEGY, FAMILIA, STRATEGY_SEGMENT, PRODUCT, CHANNEL, AGE_TAG` | categóricas; `matriz()` fija sus categorías a las del entrenamiento |
+
+- **Sin fuga de información:** ninguna feature usa métricas del MOB que se predice ni de MOB
+  posteriores. `test_sin_fuga_de_informacion` altera las 14 métricas de todos los MOB ≥ 1 y verifica
+  que ninguna feature cambie.
+- **VINTAGE no entra como categoría**, para que el modelo pueda pronosticar cosechas que no vio.
+  SCORE_TAG entra como `SCORE_ORD` + `FAMILIA` (`modelo.score_orden` y `modelo.familias`).
+- **Para M4:** `agregar_rezagos_over30` agrega la tasa Over30 en t, t−1 y t−2, su pendiente y el
+  objetivo en t+3. Solo usa MOB contiguos: si a una cohorte le falta un MOB, esas filas quedan en NaN.
+- **Para proyectar:** `filas_a_mob(tabla, mob)` pone cada cohorte en un MOB dado (por ejemplo, el 12),
+  aunque todavía no haya llegado ahí.
+
+### 3.3 Lo que se ve en el corte 202609
+
+| Dato | Valor |
+|---|---|
+| `construir_tabla` sobre 1,089,833 filas | 2.7 s (rezagos de M4: 0.5 s) |
+| `SCORE_ORD` sin valor | 0 filas (Recalibration: 1,050,121 filas; DARIA: 39,712) |
+| `UTIL_INICIAL` en NaN | 64,245 filas, una por cohorte: justo las de MOB 0 |
+| ACCOUNTS dentro de una cohorte | constante en todos los MOB, así que funciona como atributo de originación |
+| `tasa_ncl` (mediana / p99) | 0.048 / 0.413 (puede pasar de 1 porque la NCL es acumulada y ENRAMTS es del mes) |
+| `tasa_over30` (mediana / p99) | 0.125 / 0.500 |
+| `margen_por_cuenta` | negativo en todas las filas: a MOB 24 la NCL acumulada por cuenta (~1,135) supera al REVENUE acumulado (~452) |

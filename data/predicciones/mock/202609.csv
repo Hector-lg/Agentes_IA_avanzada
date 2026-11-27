@@ -1,0 +1,253 @@
+VINTAGE,STRATEGY,STRATEGY_SEGMENT,PRODUCT,CHANNEL,AGE_TAG,SCORE_TAG,MOB,indicador,q05,q50,q95,observado,desviacion,fuera_de_intervalo,enraccts,nclamts,driver_1,driver_2,driver_3,modelo_nombre,modelo_version
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202401,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202402,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202403,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202404,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202405,14.Recalibration 1.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202406,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202407,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202408,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202409,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202410,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202411,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202412,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202501,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202502,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202503,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202504,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202505,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202506,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202507,15.Recalibration 2.0,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202508,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202509,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202510,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0006,0.001,0.0014,0.0024,3.5,True,250,24.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.014,0.02,0.026,0.02,0.0,False,250,24.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00108,0.0018,0.00252,0.0054,5.0,True,250,54.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.014,0.02,0.026,0.02,0.0,False,250,54.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00168,0.0028,0.00392,0.0084,5.0,True,250,84.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202511,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.014,0.02,0.026,0.02,0.0,False,250,84.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202512,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202601,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202602,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202603,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202604,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202605,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202606,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_ncl,0.00196,0.0028,0.00364,0.0028,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202607,DARIA 1.6,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,2,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,28.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_ncl,0.00126,0.0018,0.00234,0.0018,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202608,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,1,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,18.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202609,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202609,r.Reca champ,Brands-NonPayroll-OffUs&LE,Clasica,Internet,02| Young 25-30,a.120-139,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202609,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_ncl,0.0007,0.001,0.0013,0.0008,0.6667,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1
+202609,DARIA 2.0,LE Thin,Clasica,Internet,02| Young 25-30,c.140-149,0,tasa_over30,0.04375,0.0625,0.08125,0.0625,0.0,False,80,8.0,SCORE_ORD,CHANNEL,MOB,curva_esperada_mock,1

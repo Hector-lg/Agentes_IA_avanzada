@@ -233,3 +233,10 @@ criticas_esquema:
   - R-02
   - R-13
   - R-18
+
+# K-01: umbrales (detalle operativo también en config/predicciones.yaml)
+k01:
+  enraccts_min: 200
+  desviacion_media_max: 1.5
+  desviacion_alta_max: 2.5
+  umbral_monto_critico: 50000.0

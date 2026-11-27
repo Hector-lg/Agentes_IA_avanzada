@@ -35,6 +35,11 @@ def cargar_indicadores() -> dict[str, Any]:
     return _leer_yaml(CONFIG_DIR / "indicadores.yaml")
 
 
+@lru_cache(maxsize=1)
+def cargar_predicciones_cfg() -> dict[str, Any]:
+    return _leer_yaml(CONFIG_DIR / "predicciones.yaml")
+
+
 def familia_de_strategy(strategy: str, reglas: dict[str, Any] | None = None) -> str | None:
     cfg = reglas or cargar_reglas()
     for familia, meta in cfg["familias"].items():

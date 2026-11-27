@@ -353,7 +353,118 @@ class TestExtraerCifrasHTML:
 # ---------------------------------------------------------------------------
 
 
-class TestIntegracionPPTX:
+# ---------------------------------------------------------------------------
+# Pruebas de comparación de valores
+# ---------------------------------------------------------------------------
+
+
+class TestComparacionValores:
+    """Pruebas de la lógica de comparación de valores."""
+
+    def test_coincidencia_exacta(self, tmp_path: Path) -> None:
+        """Test que una coincidencia exacta no genera discrepancias."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("La tasa es 2.34%", encoding="utf-8")
+
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.tasa|pct2}}": 2.34},
+        )
+        assert resultado.ok is True
+        assert resultado.discrepancias == 0
+
+    def test_discrepancia_valor_diferente(self, tmp_path: Path) -> None:
+        """Test que un valor diferente genera discrepancia."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("La tasa es 2.34%", encoding="utf-8")
+
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.tasa|pct2}}": 3.45},
+        )
+        assert resultado.ok is False
+        assert resultado.discrepancias >= 1
+
+    def test_tolerancia_valores_cercanos(self, tmp_path: Path) -> None:
+        """Test que valores dentro de tolerancia no generan discrepancias."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("La tasa es 2.34%", encoding="utf-8")
+
+        # Con tolerancia 0.01, 2.341 debería considerarse igual a 2.34
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.tasa|pct2}}": 2.341},
+            tolerancia=0.01,
+        )
+        assert resultado.ok is True
+
+    def test_valor_faltante(self, tmp_path: Path) -> None:
+        """Test que un valor esperado faltante genera discrepancia."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("Sin cifras", encoding="utf-8")
+
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.tasa|pct2}}": 2.34},
+        )
+        assert resultado.ok is False
+        # Debe reportar el valor esperado faltante
+        assert any(d.esperado == 2.34 and d.encontrado is None for d in resultado.detalle)
+
+    def test_valor_no_esperado(self, tmp_path: Path) -> None:
+        """Test que un valor no esperado genera discrepancia."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("La tasa es 99.99%", encoding="utf-8")
+
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.tasa|pct2}}": 2.34},
+        )
+        assert resultado.ok is False
+        # Debe reportar el valor no esperado
+        assert any(d.encontrado == 99.99 and d.esperado is None for d in resultado.detalle)
+
+    def test_multiples_coincidencias(self, tmp_path: Path) -> None:
+        """Test con múltiples valores que coinciden."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text(
+            "Tasa morosidad: 2.34%, Tasa NCL: 1.23%, Saldo: $1,234.56",
+            encoding="utf-8",
+        )
+
+        resultado = documento_verificar_cifras(
+            archivo,
+            {
+                "{{m.morosidad|pct2}}": 2.34,
+                "{{m.ncl|pct2}}": 1.23,
+                "{{m.saldo|mxn}}": 1234.56,
+            },
+        )
+        assert resultado.ok is True
+
+    def test_tolerancia_cero(self, tmp_path: Path) -> None:
+        """Test con tolerancia cero (coincidencia exacta)."""
+        archivo = tmp_path / "test.md"
+        archivo.write_text("Valor: 100.00", encoding="utf-8")
+
+        # Con tolerancia cero, solo acepta coincidencia exacta
+        resultado = documento_verificar_cifras(
+            archivo,
+            {"{{m.valor|int}}": 100.0},
+            tolerancia=0.0,
+        )
+        assert resultado.ok is True
+
+        # Un valor ligeramente diferente debe fallar
+        resultado2 = documento_verificar_cifras(
+            archivo,
+            {"{{m.valor|int}}": 100.01},
+            tolerancia=0.0,
+        )
+        assert resultado2.ok is False
+
+
+
     """Pruebas de integración con archivos .pptx reales.
 
     Se expandirán en Commit 2 con archivos de prueba que contengan
@@ -367,12 +478,66 @@ class TestIntegracionPPTX:
             documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 1.0})
         assert exc_info.value.codigo == E_VER_ARCHIVO_INEXISTENTE
 
+    def test_pptx_con_tabla(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de una tabla nativa."""
+        from pptx import Presentation
+        from pptx.util import Inches
+
+        prs = Presentation()
+        slide = prs.slides.add_slide(prs.slide_layouts[5])
+        tabla = slide.shapes.add_table(2, 2, Inches(1), Inches(1), Inches(4), Inches(1)).table
+        tabla.cell(0, 0).text = "Tasa"
+        tabla.cell(0, 1).text = "Valor"
+        tabla.cell(1, 0).text = "Over30"
+        tabla.cell(1, 1).text = "2.34%"
+
+        archivo = tmp_path / "test_tabla.pptx"
+        prs.save(str(archivo))
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 2.34})
+        # Debe haber extraído al menos un número (2.34)
+        assert resultado.cifras_encontradas >= 1
+
+    def test_pptx_con_grafica(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de una gráfica nativa."""
+        from pptx import Presentation
+        from pptx.chart.data import CategoryChartData
+        from pptx.enum.chart import XL_CHART_TYPE
+        from pptx.util import Inches
+
+        prs = Presentation()
+        slide = prs.slides.add_slide(prs.slide_layouts[5])
+
+        chart_data = CategoryChartData()
+        chart_data.categories = ["A", "B", "C"]
+        chart_data.add_series("Serie 1", (1.5, 2.3, 3.7))
+
+        x, y, cx, cy = Inches(1), Inches(1), Inches(5), Inches(3)
+        slide.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, x, y, cx, cy, chart_data)
+
+        archivo = tmp_path / "test_grafica.pptx"
+        prs.save(str(archivo))
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 1.5})
+        # Debe haber extraído los valores de la gráfica
+        assert resultado.cifras_encontradas >= 3
+
+    def test_pptx_fixture_completo(self) -> None:
+        """Test con el archivo fixture completo."""
+        fixture = Path("tests/fixtures/verificacion_test.pptx")
+        if not fixture.exists():
+            pytest.skip("Fixture no existe")
+
+        resultado = documento_verificar_cifras(
+            fixture,
+            {"{{m.test|pct2}}": 2.34},
+        )
+        # Debe haber extraído cifras de la tabla y la gráfica
+        assert resultado.cifras_encontradas >= 5
+
 
 class TestIntegracionDOCX:
-    """Pruebas de integración con archivos .docx reales.
-
-    Se expandirán en Commit 2.
-    """
+    """Pruebas de integración con archivos .docx reales."""
 
     def test_docx_inexistente(self, tmp_path: Path) -> None:
         archivo = tmp_path / "no_existe.docx"
@@ -380,12 +545,39 @@ class TestIntegracionDOCX:
             documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 1.0})
         assert exc_info.value.codigo == E_VER_ARCHIVO_INEXISTENTE
 
+    def test_docx_con_tabla(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de una tabla en .docx."""
+        from docx import Document
+
+        doc = Document()
+        tabla = doc.add_table(rows=2, cols=2)
+        tabla.cell(0, 0).text = "Métrica"
+        tabla.cell(0, 1).text = "Valor"
+        tabla.cell(1, 0).text = "Tasa"
+        tabla.cell(1, 1).text = "2.34%"
+
+        archivo = tmp_path / "test.docx"
+        doc.save(str(archivo))
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 2.34})
+        assert resultado.cifras_encontradas >= 1
+
+    def test_docx_con_parrafos(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de párrafos en .docx."""
+        from docx import Document
+
+        doc = Document()
+        doc.add_paragraph("La tasa de morosidad es 2.34%.")
+
+        archivo = tmp_path / "test.docx"
+        doc.save(str(archivo))
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 2.34})
+        assert resultado.cifras_encontradas >= 1
+
 
 class TestIntegracionXLSX:
-    """Pruebas de integración con archivos .xlsx reales.
-
-    Se expandirán en Commit 2.
-    """
+    """Pruebas de integración con archivos .xlsx reales."""
 
     def test_xlsx_inexistente(self, tmp_path: Path) -> None:
         archivo = tmp_path / "no_existe.xlsx"
@@ -393,15 +585,60 @@ class TestIntegracionXLSX:
             documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 1.0})
         assert exc_info.value.codigo == E_VER_ARCHIVO_INEXISTENTE
 
+    def test_xlsx_con_valores(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de celdas en .xlsx."""
+        from openpyxl import Workbook
+
+        wb = Workbook()
+        ws = wb.active
+        ws["A1"] = "Métrica"
+        ws["B1"] = "Valor"
+        ws["A2"] = "Tasa"
+        ws["B2"] = 2.34
+
+        archivo = tmp_path / "test.xlsx"
+        wb.save(str(archivo))
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 2.34})
+        assert resultado.cifras_encontradas >= 1
+
+    def test_xlsx_con_formula(self, tmp_path: Path) -> None:
+        """Test que extrae valores cacheados de fórmulas en .xlsx."""
+        from openpyxl import Workbook
+
+        wb = Workbook()
+        ws = wb.active
+        ws["A1"] = 10
+        ws["A2"] = 20
+        ws["A3"] = "=A1+A2"  # Fórmula, el valor cacheado sería 30
+
+        archivo = tmp_path / "test.xlsx"
+        wb.save(str(archivo))
+
+        # Abrir con data_only=True para ver valores cacheados
+        resultado = documento_verificar_cifras(archivo, {"{{m.suma|int}}": 30})
+        # Nota: el valor cacheado puede no estar disponible si no se abrió antes en Excel
+        assert resultado.cifras_encontradas >= 2  # Al menos A1 y A2
+
 
 class TestIntegracionPDF:
-    """Pruebas de integración con archivos .pdf reales.
-
-    Se expandirán en Commit 2.
-    """
+    """Pruebas de integración con archivos .pdf reales."""
 
     def test_pdf_inexistente(self, tmp_path: Path) -> None:
         archivo = tmp_path / "no_existe.pdf"
         with pytest.raises(VerificacionError) as exc_info:
             documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 1.0})
         assert exc_info.value.codigo == E_VER_ARCHIVO_INEXISTENTE
+
+    def test_pdf_con_texto(self, tmp_path: Path) -> None:
+        """Test que extrae cifras de texto en .pdf."""
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+
+        archivo = tmp_path / "test.pdf"
+        c = canvas.Canvas(str(archivo), pagesize=letter)
+        c.drawString(100, 750, "La tasa de morosidad es 2.34%.")
+        c.save()
+
+        resultado = documento_verificar_cifras(archivo, {"{{m.test|pct2}}": 2.34})
+        assert resultado.cifras_encontradas >= 1

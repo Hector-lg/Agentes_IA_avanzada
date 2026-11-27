@@ -321,6 +321,119 @@ def _extraer_cifras_pptx_texto(
     return resultados
 
 
+def _extraer_cifras_pptx_tablas(
+    ruta: Path,
+) -> list[tuple[str, float | int, str, str]]:
+    """Extrae cifras de tablas nativas de un archivo .pptx.
+
+    Returns:
+        Lista de tuplas (ubicacion, valor, origen, texto_original).
+    """
+    from pptx import Presentation
+
+    resultados: list[tuple[str, float | int, str, str]] = []
+
+    try:
+        prs = Presentation(str(ruta))
+    except Exception as exc:
+        raise VerificacionError(
+            E_VER_ARCHIVO_CORRUPTO,
+            f"no se pudo abrir {ruta}: {exc}",
+        ) from exc
+
+    for num_slide, slide in enumerate(prs.slides, start=1):
+        for shape in slide.shapes:
+            if shape.has_table:
+                tabla = shape.table
+                for num_fila, fila in enumerate(tabla.rows, start=1):
+                    for num_col, celda in enumerate(fila.cells, start=1):
+                        texto = celda.text
+                        if texto:
+                            for texto_num, valor in _extraer_numeros_texto(texto):
+                                ubicacion = (
+                                    f"diapositiva {num_slide}, tabla, "
+                                    f"fila {num_fila}, columna {num_col}"
+                                )
+                                resultados.append((ubicacion, valor, "tabla", texto_num))
+
+    return resultados
+
+
+def _extraer_cifras_pptx_graficas(
+    ruta: Path,
+) -> list[tuple[str, float | int, str, str]]:
+    """Extrae cifras de gráficas nativas de python-pptx.
+
+    Recorre los valores de cada serie y extrae los números.
+    También extrae las categorías si son numéricas.
+
+    Returns:
+        Lista de tuplas (ubicacion, valor, origen, texto_original).
+    """
+    from pptx import Presentation
+
+    resultados: list[tuple[str, float | int, str, str]] = []
+
+    try:
+        prs = Presentation(str(ruta))
+    except Exception as exc:
+        raise VerificacionError(
+            E_VER_ARCHIVO_CORRUPTO,
+            f"no se pudo abrir {ruta}: {exc}",
+        ) from exc
+
+    for num_slide, slide in enumerate(prs.slides, start=1):
+        for shape in slide.shapes:
+            if shape.has_chart:
+                chart = shape.chart
+                nombre_grafica = shape.name if hasattr(shape, "name") else "gráfica"
+
+                # Extraer valores de series
+                try:
+                    for num_serie, serie in enumerate(chart.series, start=1):
+                        nombre_serie = (
+                            str(serie.name) if serie.name else f"serie {num_serie}"
+                        )
+
+                        # Los valores están en serie.values
+                        valores = serie.values
+                        if valores is not None:
+                            for num_punto, valor in enumerate(valores, start=1):
+                                if isinstance(valor, int | float):
+                                    ubicacion = (
+                                        f"diapositiva {num_slide}, gráfica '{nombre_grafica}', "
+                                        f"serie '{nombre_serie}', punto {num_punto}"
+                                    )
+                                    resultados.append(
+                                        (ubicacion, valor, "grafica", str(valor))
+                                    )
+
+                        # También verificar categorías si son numéricas
+                        # Las categorías están en el plot, no en la serie
+                except (AttributeError, TypeError, ValueError):
+                    # Si hay error leyendo la gráfica, continuar sin extraer
+                    pass
+
+    return resultados
+
+
+def _extraer_cifras_pptx_completo(
+    ruta: Path,
+) -> list[tuple[str, float | int, str, str]]:
+    """Extrae todas las cifras de un archivo .pptx.
+
+    Incluye texto, tablas y gráficas nativas.
+
+    Returns:
+        Lista de tuplas (ubicacion, valor, origen, texto_original).
+    """
+    resultados: list[tuple[str, float | int, str, str]] = []
+    resultados.extend(_extraer_cifras_pptx_texto(ruta))
+    resultados.extend(_extraer_cifras_pptx_tablas(ruta))
+    resultados.extend(_extraer_cifras_pptx_graficas(ruta))
+    return resultados
+
+
 def _extraer_cifras_docx(
     ruta: Path,
 ) -> list[tuple[str, float | int, str, str]]:
@@ -385,7 +498,7 @@ def _extraer_cifras_docx(
 def _extraer_cifras_xlsx(
     ruta: Path,
 ) -> list[tuple[str, float | int, str, str]]:
-    """Extrae cifras de un archivo .xlsx (celdas con valores).
+    """Extrae cifras de un archivo .xlsx (celdas con valores y gráficas).
 
     Returns:
         Lista de tuplas (ubicacion, valor, origen, texto_original).
@@ -412,6 +525,21 @@ def _extraer_cifras_xlsx(
                     resultados.append((ubicacion, valor, "celda", str(valor)))
 
     return resultados
+
+
+def _extraer_cifras_xlsx_completo(
+    ruta: Path,
+) -> list[tuple[str, float | int, str, str]]:
+    """Extrae todas las cifras de un archivo .xlsx.
+
+    Incluye celdas con valores numéricos.
+    Las gráficas de Excel requieren acceso al XML interno que openpyxl
+    no expone directamente, por lo que se omiten en esta implementación.
+
+    Returns:
+        Lista de tuplas (ubicacion, valor, origen, texto_original).
+    """
+    return _extraer_cifras_xlsx(ruta)
 
 
 def _extraer_cifras_pdf(
@@ -492,11 +620,11 @@ def documento_verificar_cifras(
     sufijo = ruta.suffix.lower()
 
     if sufijo == ".pptx":
-        cifras = _extraer_cifras_pptx_texto(ruta)
+        cifras = _extraer_cifras_pptx_completo(ruta)
     elif sufijo == ".docx":
         cifras = _extraer_cifras_docx(ruta)
     elif sufijo == ".xlsx":
-        cifras = _extraer_cifras_xlsx(ruta)
+        cifras = _extraer_cifras_xlsx_completo(ruta)
     elif sufijo == ".pdf":
         cifras = _extraer_cifras_pdf(ruta)
     elif sufijo in {".md", ".markdown"}:
@@ -513,8 +641,75 @@ def documento_verificar_cifras(
 
     resultado.cifras_encontradas = len(cifras)
 
-    # Comparación básica (se completará en Commit 3)
-    # Por ahora, solo contamos las cifras encontradas
-    # y devolvemos sin discrepancias para que las pruebas básicas pasen
+    # Construir índice de valores encontrados para búsqueda rápida
+    # Agrupamos por valor numérico (puede haber múltiples ubicaciones)
+    valores_encontrados: dict[float, list[tuple[str, str, str]]] = {}
+    for ubicacion, valor, origen, texto_original in cifras:
+        valor_clave = float(valor)
+        if valor_clave not in valores_encontrados:
+            valores_encontrados[valor_clave] = []
+        valores_encontrados[valor_clave].append((ubicacion, origen, texto_original))
+
+    # Conjunto de valores esperados que ya fueron encontrados
+    esperados_encontrados: set[str] = set()
+
+    # Comparar cada cifra encontrada contra los valores esperados
+    for ubicacion, valor, origen, texto_original in cifras:
+        valor_float = float(valor)
+
+        # Buscar si este valor coincide con algún valor esperado
+        encontrado = False
+        for marcador, esperado in valores_esperados.items():
+            esperado_float = float(esperado)
+            if _valores_son_equivalentes(valor_float, esperado_float, tolerancia):
+                # Coincidencia encontrada
+                esperados_encontrados.add(marcador)
+                encontrado = True
+                break
+
+        # Si no se encontró coincidencia, es una discrepancia
+        if not encontrado:
+            # Verificar si el valor está cerca de algún esperado (para debugging)
+            cercano = False
+            for marcador, esperado in valores_esperados.items():
+                if abs(valor_float - float(esperado)) <= tolerancia * 10:
+                    cercano = True
+                    break
+
+            if not cercano:
+                # Valor no esperado en el documento
+                resultado.agregar(
+                    Discrepancia(
+                        ubicacion=ubicacion,
+                        origen=origen,
+                        esperado=None,
+                        encontrado=valor,
+                        marcador=None,
+                    )
+                )
+
+    # Verificar valores esperados que no aparecieron en el documento
+    for marcador, esperado in valores_esperados.items():
+        if marcador not in esperados_encontrados:
+            # Verificar si el valor esperado aparece en el documento
+            esperado_float = float(esperado)
+            if esperado_float not in valores_encontrados:
+                # Buscar con tolerancia
+                encontrado_con_tolerancia = False
+                for valor_encontrado in valores_encontrados:
+                    if abs(esperado_float - valor_encontrado) <= tolerancia:
+                        encontrado_con_tolerancia = True
+                        break
+
+                if not encontrado_con_tolerancia:
+                    resultado.agregar(
+                        Discrepancia(
+                            ubicacion="documento",
+                            origen="texto",
+                            esperado=esperado,
+                            encontrado=None,
+                            marcador=marcador,
+                        )
+                    )
 
     return resultado

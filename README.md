@@ -6,6 +6,7 @@ Plataforma integral de IA local para el análisis, diagnóstico de calidad, pron
 - **Documentación oficial:**
   - [PRD_agentes.md](docs/PRD_agentes.md): Requisitos de producto, reglas de negocio y arquitectura funcional.
   - [Manual_Tecnico_Plataforma_BaseCards.md](docs/Manual_Tecnico_Plataforma_BaseCards.md): Manual técnico de arquitectura, despliegue y referencia operativa.
+  - [E1_E2_Ingesta_y_MPDC.md](docs/E1_E2_Ingesta_y_MPDC.md): Ingesta del corte, modelo MPDC, scoring y API `/score-cohorte` (cómo correrlos y contratos de salida).
 
 ---
 
@@ -112,20 +113,39 @@ uv pip install -e .
 
 ---
 
+## Núcleo de analítica (E1/E2) en 4 comandos
+
+Con el `.venv` activo y el CSV del corte a la mano:
+
+```powershell
+python -m basecards.ingesta --csv <ruta>ase_cards_sintetica.csv --corte 202609 --validar   # CSV → Parquet + dictamen E1
+python -m basecards.modelo.entrenar --corte 202609     # MPDC champion (~42 min; --rapido para iterar)
+python -m basecards.modelo.puntuar --corte 202609      # data/predicciones/202609/ para E3, E5, E6
+uvicorn basecards.api.app:app --host 127.0.0.1 --port 8000   # API; documentación en /docs
+```
+
+`data/`, `artefactos/` y `mlflow.db` no se versionan: cada máquina corre estos pasos con su CSV.
+Detalle, contratos de salida y resultados con el corte 202609:
+[docs/E1_E2_Ingesta_y_MPDC.md](docs/E1_E2_Ingesta_y_MPDC.md).
+
+---
+
 ## Estructura del Código y Módulos
 
 ```
 Agentes_IA_avanzada/
 ├── docs/                        # Documentación técnica y funcional
 │   ├── PRD_agentes.md
-│   └── Manual_Tecnico_Plataforma_BaseCards.md
+│   ├── Manual_Tecnico_Plataforma_BaseCards.md
+│   └── E1_E2_Ingesta_y_MPDC.md  # Ingesta, MPDC, scoring y API (Integrante 1)
 │
 ├── pyproject.toml               # Configuración del paquete basecards y herramientas
 ├── requirements.txt             # Dependencias base con versiones fijadas
 │
 ├── src/basecards/               # Paquete fuente principal
-│   ├── ingesta/                 # [Integrante 1] Ingesta y validación columnar
-│   ├── modelo/                  # [Integrante 1] MPDC (LightGBM cuantílico, curvas esperadas)
+│   ├── ingesta/                 # [Integrante 1] CSV del corte → Parquet tipado + manifiesto (E1)
+│   ├── modelo/                  # [Integrante 1] MPDC: features, entrenamiento, CQR, scoring (E2)
+│   ├── api/                     # [Integrante 1] FastAPI: POST /score-cohorte, /ranking-estrategias
 │   ├── soporte/                 # [Integrante 2] Validación determinista y tickets de incidentes
 │   ├── copiloto/                # [Integrante 4] Grafo de análisis y triage de preguntas
 │   ├── presentaciones/          # [Integrante 3] Generador de presentaciones y documentos (E6)

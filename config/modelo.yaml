@@ -1,0 +1,118 @@
+# Configuración del núcleo de analítica (Integrante 1): ingesta E1 y MPDC E2.
+# PRD §6 y Manual técnico §5. Cambiar un valor aquí es configuración, no código.
+
+ingesta:
+  # Raíz de los cortes en Parquet: data/cortes/{corte}/base_cards.parquet
+  dir_cortes: data/cortes
+  compresion: zstd
+  # Columnas de catálogo que se guardan como `category` (diccionario en Parquet)
+  categoricas: [STRATEGY, STRATEGY_SEGMENT, PRODUCT, CHANNEL, AGE_TAG, SCORE_TAG]
+  # Series que el sistema revisa para avisar si se comportan como acumuladas (S-01)
+  series_riesgo: [OVER30ACCTS, OVER30AMTS, GCLAMTS, NCLAMTS, RECOVERYAMTS, REVENUE]
+  # Una serie se considera acumulada si menos de esta fracción de sus diferencias por MOB es negativa
+  umbral_acumulado: 0.001
+
+modelo:
+  # Bundles versionados: artefactos/modelos/mpdc/v{N}/ y el puntero champion.json
+  dir_modelos: artefactos/modelos/mpdc
+  # MLflow: experimento de los runs y nombre del modelo en el Model Registry (alias `champion`)
+  experimento_mlflow: mpdc
+  nombre_registro: mpdc
+
+  # Indicadores que predice el MPDC (PRD §6.1). `peso` es la exposición con la que se pondera
+  # (PRD §6.2). El numerador MARGEN se arma en código según `acumulado` de
+  # config/indicadores.yaml (ver basecards.modelo.indicadores).
+  # `rango`: la banda predicha se recorta a este intervalo (null = sin límite).
+  objetivos:
+    tasa_ncl:
+      numerador: NCLAMTS
+      denominador: ENRAMTS
+      peso: ENRAMTS
+      rango: [0, null]   # con la NCL acumulada sobre el saldo del mes puede pasar de 1
+    tasa_over30:
+      numerador: OVER30ACCTS
+      denominador: ENRACCTS
+      peso: ENRACCTS
+      rango: [0, 1]
+    margen_por_cuenta:
+      numerador: MARGEN
+      denominador: ACCOUNTS
+      peso: ACCOUNTS
+
+  # SCORE_ORD: posición del rango de score dentro de su familia (PRD §6.2), del diccionario
+  score_orden:
+    Recalibration: ["<130", "130-140", "141-150", "151-160", "161-170", "171-180", "181-190", "190+"]
+    DARIA: ["a.<=154", "b.155-159", "c.160-164", "d.165-169", "e.170-174", "f.175-189",
+            "g.190-199", "h.200-204", "i.205+"]
+  # FAMILIA: a qué familia de score pertenece cada STRATEGY
+  familias:
+    Recalibration: ["14.Recalibration 1.0", "15.Recalibration 2.0", "r.Reca champ"]
+    DARIA: ["DARIA 1.6", "DARIA 2.0"]
+
+  # Banda de predicción: un modelo LightGBM cuantílico por indicador y cuantil (3 × 3 = 9)
+  cuantiles: [0.05, 0.5, 0.95]
+
+  # Exposición mínima para entrenar. El PRD propone ENRACCTS >= 200, pero en el CSV sintético
+  # solo 740 de 1,089,833 filas (0.07%) lo cumplen: las cohortes son muy granulares (mediana de
+  # 8 cuentas con saldo). Se entrena con todas las filas con exposición > 0 y se pondera por
+  # exposición; con datos reales se puede subir este umbral.
+  exposicion_minima:
+    columna: ENRACCTS
+    valor: 1
+
+  # Hiperparámetros iniciales (Manual §5.2)
+  lgbm:
+    n_estimators: 600
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 50
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    random_state: 42
+    n_jobs: -1
+    verbose: -1
+
+  # Validación fuera de tiempo con origen móvil (PRD §6.4)
+  backtest:
+    n_origenes: 4
+    horizonte: 6   # se evalúa en los 6 meses de desempeño posteriores al origen
+    paso: 3        # meses entre orígenes
+
+  # --rapido: fracción de cohortes que se usa, estratificada por VINTAGE × STRATEGY (Manual §5.1)
+  fraccion_rapido: 0.2
+
+  # Calibración conformal (CQR, RN-04) por tramos de MOB, con los residuos del backtest
+  cqr:
+    activo: true
+    tramos_mob: [[0, 3], [4, 12], [13, 99]]
+
+  # Modelo auxiliar M4: tasa Over30 a 3 MOB con rezagos t, t-1, t-2
+  m4:
+    adelanto: 3
+    rezagos: 3
+    lgbm:
+      objective: regression_l1
+      n_estimators: 400
+      learning_rate: 0.05
+      num_leaves: 31
+      min_child_samples: 50
+      subsample: 0.8
+      subsample_freq: 1
+      colsample_bytree: 0.8
+      random_state: 42
+      n_jobs: -1
+      verbose: -1
+
+  # Promoción a champion (Manual §5.3): cobertura CQR de la banda 5-95 en este rango
+  # y mejor pinball q50 del backtest que el champion actual
+  promocion:
+    cobertura_min: 0.85
+    cobertura_max: 0.95
+
+  # MOB al que se proyecta cada cohorte para el ranking y el nivel de riesgo
+  horizonte_ranking_mob: 12
+
+  # Nivel de riesgo: percentiles de la tasa NCL esperada a `horizonte_ranking_mob`
+  nivel_riesgo:
+    percentiles: {medio: 0.50, alto: 0.80, critico: 0.95}

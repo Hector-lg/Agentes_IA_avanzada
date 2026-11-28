@@ -17,6 +17,14 @@ duckdb==2.0.0
 pandera==0.36.0
 scikit-learn==1.7.2
 
+# ===== MPDC: modelos cuantílicos y registro (Integrante 1, E2) =====
+lightgbm==4.7.0
+mlflow==3.18.0
+
+# ===== API del MPDC (Integrante 1, E2) =====
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+
 # ===== Generación de documentos =====
 python-pptx==1.0.2
 python-docx==1.2.0

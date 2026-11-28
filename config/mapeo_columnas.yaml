@@ -1,28 +1,29 @@
 # Mapeo de códigos dummiN del diccionario → nombres de variable (S-06).
-# El cargador acepta ambos encabezados.
+# El cargador acepta ambos encabezados. Códigos tomados de la primera columna de
+# "Base Cards para TEC - Diccionario de Variables" (no son consecutivos).
 dummi_a_variable:
   dummi1: VINTAGE
-  dummi2: STRATEGY
-  dummi3: STRATEGY_SEGMENT
-  dummi4: PRODUCT
-  dummi5: CHANNEL
-  dummi6: AGE_TAG
-  dummi7: SCORE_TAG
-  dummi8: ACCOUNTS
-  dummi9: CREDITLINESAMTS
-  dummi10: ENRACCTS
-  dummi11: OVER30ACCTS
-  dummi12: OVER30AMTS
-  dummi13: GCLAMTS
-  dummi14: NCLAMTS
-  dummi15: RECOVERYAMTS
-  dummi16: ENRAMTS
-  dummi17: REVENUE
-  dummi18: EXPENSES_ACQ
-  dummi19: EXPENSES_ECM_VAR
-  dummi20: EXPENSES_ECM_FIX
-  dummi21: EXPENSES_TOTAL
-  # MOB no tiene código dummi; se identifica por nombre.
+  dummi12: STRATEGY
+  dummi13: STRATEGY_SEGMENT
+  dummi6: PRODUCT
+  dummi3: CHANNEL
+  dummi2: AGE_TAG
+  dummi10: SCORE_TAG
+  dummi15: ACCOUNTS
+  dummi16: CREDITLINESAMTS
+  dummi17: ENRACCTS
+  dummi18: OVER30ACCTS
+  dummi19: OVER30AMTS
+  dummi20: GCLAMTS
+  dummi21: NCLAMTS
+  dummi22: RECOVERYAMTS
+  dummi23: ENRAMTS
+  dummi44: REVENUE
+  dummi46: EXPENSES_ACQ
+  dummi47: EXPENSES_ECM_VAR
+  dummi48: EXPENSES_ECM_FIX
+  dummi49: EXPENSES_TOTAL
+  # MOB no tiene código dummi en el diccionario; se identifica por nombre.
 
 csv:
   separador: ","

@@ -119,7 +119,7 @@ def desviacion_normalizada(obs: np.ndarray, banda: np.ndarray) -> np.ndarray:
     return np.where(np.isnan(obs), np.nan, np.clip(d, 0.0, TOPE_DESVIACION))
 
 
-def _llave_como_texto(df: pd.DataFrame) -> pd.DataFrame:
+def llave_como_texto(df: pd.DataFrame) -> pd.DataFrame:
     """Las dimensiones de catálogo salen como texto, igual que en el mock del contrato."""
     for c in LLAVE_COHORTE:
         if c in df.columns and not pd.api.types.is_numeric_dtype(df[c]):
@@ -160,7 +160,7 @@ def tabla_predicciones(
     el modelo) y las que K-01 va a revisar: fuera de intervalo con ENRACCTS ≥ `enraccts_min`.
     """
     tabla = tabla.reset_index(drop=True)
-    base = _llave_como_texto(tabla[LLAVE_FILA].copy())
+    base = llave_como_texto(tabla[LLAVE_FILA].copy())
     fuera_de_tiempo = (tabla["PERF_MONTH"] > int(mpdc.meta["entrenado_hasta"])).to_numpy()
     enraccts = pd.to_numeric(tabla["ENRACCTS"]).fillna(0).astype("int64").to_numpy()
     nclamts = pd.to_numeric(tabla["NCLAMTS"]).astype("float64").to_numpy()
@@ -205,7 +205,7 @@ def cohortes_horizonte(mpdc: MPDC, tabla: pd.DataFrame) -> pd.DataFrame:
     obs = obs.rename(columns={o: f"{o}_observado" for o in mpdc.objetivos})
     out = out.merge(obs, on=LLAVE_COHORTE, how="left", validate="one_to_one")
     out["nivel_riesgo"] = [mpdc.nivel_riesgo(v) for v in out["tasa_ncl_q50"]]
-    return _llave_como_texto(out)
+    return llave_como_texto(out)
 
 
 def ranking_estrategias(coh: pd.DataFrame, por: list[str] | None = None) -> pd.DataFrame:
@@ -259,7 +259,7 @@ def pronostico_m4(mpdc: MPDC, tabla: pd.DataFrame) -> pd.DataFrame:
         raise PuntuacionError(f"El MPDC v{mpdc.version} no trae el modelo M4 (modelos/m4.txt)")
     for j, q in enumerate(("q05", "q50", "q95")):
         out[f"tasa_over30_{q}"] = p[:, j]
-    return _llave_como_texto(out)
+    return llave_como_texto(out)
 
 
 def _pct(mascara: pd.Series) -> float | None:

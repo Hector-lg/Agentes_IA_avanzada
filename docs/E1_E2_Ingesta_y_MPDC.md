@@ -22,6 +22,9 @@ python -m basecards.modelo.entrenar --corte 202609
 
 # E2 — Scoring del corte con el champion: salidas para E3, E5, E6 y dashboards
 python -m basecards.modelo.puntuar --corte 202609
+
+# E2 — API del MPDC (documentación interactiva en http://127.0.0.1:8000/docs)
+uvicorn basecards.api.app:app --host 127.0.0.1 --port 8000
 ```
 
 En Linux es igual (`source .venv/bin/activate`). `data/` no se versiona: el CSV y el Parquet
@@ -34,6 +37,8 @@ viven solo en cada máquina.
 | Backtest `--rapido` (20% de cohortes, 600 árboles, 4 orígenes × 9 modelos) | ~4 min |
 | Entrenamiento completo (`entrenar`): backtest ~26 min + modelos finales ~16 min + MLflow | ~42 min |
 | Scoring del corte (`puntuar`): 9 modelos sobre 1,089,833 filas + drivers + 4 Parquet | ~1.5 min |
+| Arranque de la API (verifica el bundle y precalcula 64,245 cohortes) | ~6.6 s |
+| `POST /score-cohorte` por HTTP (mediana de 30 solicitudes; máximo 81 ms) | ~70 ms |
 
 ## 2. E1 — Ingesta (`src/basecards/ingesta/`, issue #4)
 
@@ -329,3 +334,95 @@ su desplazamiento CQR es mucho mayor que el de Recalibration. Una explicación p
 horizonte: la CQR se calibró con errores de 1 a 6 meses después de cada origen, y las filas nuevas
 están a 1 mes de lo que vio el modelo. El backtest no guarda la cobertura por horizonte, así que
 esto no está medido.
+
+## 7. E2 — API del MPDC (`src/basecards/api/`, issue #10)
+
+API FastAPI de solo lectura sobre el champion y el corte. Es para el Copiloto (E5, herramientas
+`modelo_curva_esperada` y `modelo_comparar_estrategias`); también la pueden usar los dashboards y el
+Agente de Soporte, que hoy lee `predicciones.parquet`.
+
+```powershell
+uvicorn basecards.api.app:app --host 127.0.0.1 --port 8000
+```
+
+| Variable | Por defecto | Para qué |
+|---|---|---|
+| `FECHA_CORTE` | el corte con que se entrenó el modelo | corte que se carga |
+| `MPDC_VERSION` | `champion` | versión del bundle (`champion` o un número) |
+| `MPDC_DIR_MODELOS` | `modelo.dir_modelos` (`artefactos/modelos/mpdc`) | raíz de los bundles |
+| `DIR_CORTES` | `ingesta.dir_cortes` (`data/cortes`) | raíz de los cortes |
+
+Al arrancar verifica el SHA-256 de cada archivo del bundle y precalcula la originación y los
+observados de cada cohorte, su banda al MOB 12 y el pronóstico M4. Si el bundle no pasa la
+verificación o falta algo, la API arranca igual: `/salud` responde 503 con el motivo y los
+endpoints del modelo responden 503. La identidad (JWT/Keycloak) y `policy.check` los agrega la
+plataforma común (E0) cuando esté lista.
+
+| Método | Ruta | Devuelve |
+|---|---|---|
+| GET | `/salud` | `estado`, modelo, corte, dictamen E1, número de cohortes, `integridad_ok` y segundos de carga |
+| GET | `/modelo` | metadatos, datos del corte, métricas del backtest, umbrales de riesgo y ruta de la ficha |
+| POST | `/score-cohorte` | curva esperada de NCL, Over30 y margen, nivel de riesgo, desviaciones, drivers y M4 |
+| GET | `/ranking-estrategias` | ranking por margen esperado; filtros `vintage_desde`, `vintage_hasta`, `strategy` (varias), `familia`, `por_segmento` y `top` |
+| GET | `/cohortes` | llaves de cohortes del corte, de más a menos cuentas; filtros `strategy`, `segmento`, `vintage` y `limite` |
+
+### 7.1 Contrato de `POST /score-cohorte`
+
+Sigue el Manual §5.8. La solicitud trae la `cohorte` (7 dimensiones; los espacios sobrantes se
+recortan como en N-01) y, opcionalmente, `mobs`, `observado`, `originacion` e `incluir_drivers`:
+
+```json
+{
+  "cohorte": {"VINTAGE": 202409, "STRATEGY": "15.Recalibration 2.0",
+              "STRATEGY_SEGMENT": "Brands-NonPayroll-OnUs", "PRODUCT": "Explora",
+              "CHANNEL": "Turismo", "AGE_TAG": "03| Mature >30", "SCORE_TAG": "161-170"},
+  "mobs": [3, 9, 12],
+  "observado": {"MOB": 9, "NCLAMTS": 152000.0, "ENRAMTS": 6100000.0}
+}
+```
+
+| Campo de la respuesta | Contenido |
+|---|---|
+| `modelo` | `nombre` (`mpdc`), `version`, `alias`, `corte` y `entrenado_hasta` |
+| `cohorte_en_corte`, `originacion` | si la cohorte está en el corte y de dónde salió su originación: `corte`, `solicitud` o `imputada` |
+| `curva`, `curva_over30`, `margen_esperado` | q05/q50/q95 calibrados por MOB, con el `observado` del corte si existe |
+| `nivel_riesgo`, `ncl_esperada_horizonte` | bajo / medio / alto / crítico según la NCL esperada al MOB 12 y sus umbrales |
+| `fuente_observado`, `desviacion`, `desviaciones` | desviación normalizada (PRD §6.6) de NCL y de los demás indicadores que se puedan calcular |
+| `drivers`, `drivers_por_indicador` | 3 drivers TreeSHAP del modelo q50, en el MOB observado o en el último pedido |
+| `pronostico_over30_3mob` | M4 desde el último MOB observado de la cohorte, con su banda |
+| `advertencias` | originación imputada, categorías que el modelo no vio, SCORE_TAG fuera de catálogo, corte `no apto` |
+
+Con la solicitud de arriba y el champion v1, la NCL observada a MOB 9 (0.0249) queda por debajo de
+la banda [0.0387, 0.0609]: `desviacion` 1.68 y `fuera_de_intervalo: true`. Como está del lado
+bueno, el nivel de riesgo se queda en `medio`. Los drivers de NCL son `SCORE_ORD`, `LOG_ACCOUNTS`
+y `MOB`, y M4 pronostica Over30 de 0.237 [0.219, 0.287] para MOB 27 (202612).
+
+**Reglas:**
+
+- **Por defecto** `mobs` va de 0 al MOB 12, o hasta el MOB observado si es mayor.
+- **Sin `observado`**, si la cohorte está en el corte, la desviación se calcula en su último MOB
+  observado. Da lo mismo que `predicciones.parquet` para esa fila.
+- **Cada indicador** necesita su par numerador/denominador en `observado`: NCLAMTS/ENRAMTS,
+  OVER30ACCTS/ENRACCTS o MARGEN/ACCOUNTS (los de `modelo.objetivos`).
+- **Nivel de riesgo:** si el observado sale de la banda del lado malo (arriba en las tasas, abajo en
+  el margen), sube a `alto`, o a `critico` si la desviación pasa de 2.5, como la severidad de K-01.
+- **Cohorte que no está en el corte:** si la solicitud no trae `originacion`, se imputa con la
+  mediana de las cohortes de la misma estrategia × segmento × producto. Si no hay, de la misma
+  estrategia y, si tampoco, de todas.
+- **Solicitudes inválidas** responden 422: VINTAGE que no es AAAAMM (202613), MOB negativos o
+  mayores a 60, `mobs` vacío o una dimensión faltante.
+
+### 7.2 Con el corte 202609
+
+Por HTTP con uvicorn y el champion v1:
+
+- **Arranque:** 6.6 s.
+- **`/score-cohorte`:** 70 ms de mediana en 30 solicitudes (máximo 81 ms), contra los 300 ms que
+  pide el issue.
+- **`/ranking-estrategias`:** 40–50 ms. Con `familia=DARIA&por_segmento=false`, DARIA 1.6 queda
+  arriba de DARIA 2.0: margen esperado de −1,587 contra −1,657 por cuenta.
+- **`/cohortes`:** 11 ms.
+
+Las pruebas (`tests/modelo/test_modelo_api.py`) comprueban que la API y el scoring de E2 coinciden:
+misma banda, desviación y drivers que `predicciones.parquet`, y mismo ranking que
+`ranking_estrategias.parquet`.

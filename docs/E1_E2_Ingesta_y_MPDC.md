@@ -19,6 +19,9 @@ python -m basecards.modelo.backtest --corte 202609 --rapido --salida backtest_20
 
 # E2 — Entrenamiento completo: backtest + CQR + modelos finales + bundle + MLflow
 python -m basecards.modelo.entrenar --corte 202609
+
+# E2 — Scoring del corte con el champion: salidas para E3, E5, E6 y dashboards
+python -m basecards.modelo.puntuar --corte 202609
 ```
 
 En Linux es igual (`source .venv/bin/activate`). `data/` no se versiona: el CSV y el Parquet
@@ -30,6 +33,7 @@ viven solo en cada máquina.
 | Validación E1 del Agente de Soporte (`--validar`) | ~90 s, dictamen `apto`; ~35 s son de P-07, que corre desde que `acumulado: true` (issue #5) |
 | Backtest `--rapido` (20% de cohortes, 600 árboles, 4 orígenes × 9 modelos) | ~4 min |
 | Entrenamiento completo (`entrenar`): backtest ~26 min + modelos finales ~16 min + MLflow | ~42 min |
+| Scoring del corte (`puntuar`): 9 modelos sobre 1,089,833 filas + drivers + 4 Parquet | ~1.5 min |
 
 ## 2. E1 — Ingesta (`src/basecards/ingesta/`, issue #4)
 
@@ -253,3 +257,75 @@ exposición. Duración: ~42 min. Resultado: **v1, promovido a `champion`**.
 - `mlflow.pyfunc.load_model("models:/mpdc@champion")` carga y predice. Por ejemplo, en tres
   cohortes de Recalibration 1.0 a MOB 12, la tasa NCL esperada es 0.177 (score 141–150), 0.119
   (151–160) y 0.085 (161–170).
+
+## 6. E2 — Scoring del corte y contrato de salidas (`puntuar.py`, issue #9)
+
+`python -m basecards.modelo.puntuar --corte 202609` puntúa el corte con el `champion` (`--version N`
+para otra versión). Antes de cargar el modelo revisa el SHA-256 de cada archivo del bundle: si
+alguno falta o cambió, no puntúa ni escribe nada. Tampoco puntúa un corte con dictamen `no apto` en
+E1 (PRD §4), salvo con `--forzar`. Escribe en `data/predicciones/{corte}/`, la carpeta de
+`ruta_parquet` en `config/predicciones.yaml`:
+
+| Archivo | Una fila por | Lo usa |
+|---|---|---|
+| `predicciones.parquet` | cohorte × MOB × indicador | E3 (K-01), E5, E6 y dashboards |
+| `cohortes_horizonte.parquet` | cohorte, al MOB 12: banda de los 3 indicadores, observado y nivel de riesgo | E5, dashboards |
+| `ranking_estrategias.parquet` | estrategia × segmento, por margen esperado al MOB 12 | E5, E6, dashboards |
+| `pronostico_over30_3mob.parquet` | cohorte: M4 desde su último MOB observado, con su banda | dashboards |
+| `evento_predicciones_listas.json` | — | E3: `predicciones_listas(corte_id, version_modelo)` |
+
+### 6.1 Contrato de `predicciones.parquet` (E2 → E3)
+
+Es la tabla `predicciones_cohorte` en el formato largo que fija el Integrante 2 en
+`config/predicciones.yaml` y valida `soporte/predicciones/esquema.py`. Trae los indicadores de la
+lista `indicadores` del contrato: `tasa_ncl` y `tasa_over30`, que son los que revisa K-01 (Manual
+§2.6.3). El margen esperado está en `cohortes_horizonte` y en el ranking.
+
+| Columna | Contenido |
+|---|---|
+| `VINTAGE` … `SCORE_TAG`, `MOB` | llave de la fila; los catálogos van como texto |
+| `indicador` | `tasa_ncl` o `tasa_over30` |
+| `q05`, `q50`, `q95` | banda calibrada con CQR y acotada al rango de la tasa; siempre q05 ≤ q50 ≤ q95 |
+| `observado` | tasa del corte; NaN si el denominador es 0 |
+| `desviacion` | PRD §6.6: (obs − q50)/(q95 − q50) hacia arriba y (q50 − obs)/(q50 − q05) hacia abajo. Nunca es negativa y pasa de 1 si y solo si la fila está fuera de intervalo |
+| `fuera_de_intervalo` | observado < q05 u observado > q95 |
+| `enraccts`, `nclamts` | exposición y monto NCL de la fila (K-01 filtra ENRACCTS ≥ 200 y estima el monto en exceso) |
+| `driver_1..3`, `contribucion_1..3` | TreeSHAP del modelo q50: la feature (con su valor si es categórica, p. ej. `CHANNEL=Internet`) y su contribución |
+| `modelo_nombre`, `modelo_version` | `mpdc` y la versión del bundle |
+| `PERF_MONTH`, `fuera_de_tiempo` | mes de desempeño y si es posterior a lo que vio el modelo: las filas nuevas del corte |
+
+Llevan drivers las filas nuevas del corte y las que K-01 va a revisar (fuera de intervalo con
+ENRACCTS ≥ `enraccts_min`); en el resto van vacíos. Antes de escribir, el scoring pasa la tabla por
+`validar_esquema_predicciones`. Para que el Agente de Soporte la lea en lugar del mock basta con
+`fuente: parquet` en `config/predicciones.yaml`.
+
+**Ranking.** Cada columna es el promedio de las cohortes del grupo ponderado por sus cuentas
+originadas (ACCOUNTS_0), o sea, una razón de sumas. El margen ya descuenta la NCL, así que el orden
+está ajustado por riesgo.
+
+**Evento.** Se borra al empezar y se escribe al final con el dictamen E1, las filas y el SHA-256
+de cada archivo, así que solo anuncia salidas completas.
+
+### 6.2 Scoring del corte 202609
+
+Con el champion v1 (entrenado hasta 202608): ~1.5 min.
+
+| Dato | Valor |
+|---|---|
+| Predicciones cohorte × MOB | 1,089,833 (2,179,666 filas en formato largo: 2 indicadores) |
+| Filas nuevas del corte (PERF_MONTH = 202609) | 64,245, todas con sus 3 drivers |
+| q05 ≤ q50 ≤ q95 | en todas las filas, sin NaN |
+| Filas nuevas fuera de intervalo | NCL **5.4%** (3.3% arriba, 2.2% abajo); Over30 **7.3%** (4.3% / 3.0%) |
+| Todas las filas fuera de intervalo | NCL 6.5%, Over30 6.8% |
+| Candidatas a K-01 (fuera de intervalo, ENRACCTS ≥ 200) | 19 en NCL y 14 en Over30 |
+| Hallazgos K-01 del Agente de Soporte (`comparar_curva_esperada`, `fuente="parquet"`) | 24: 21 de severidad media, 2 alta y 1 crítica |
+| `cohortes_horizonte` | 64,245 cohortes al MOB 12: 32,143 de riesgo bajo, 19,205 medio, 9,657 alto y 3,240 crítico |
+| `ranking_estrategias` | 44 estrategias × segmento; arriba r.Reca champ × Costco (margen esperado −1,187 por cuenta) y abajo DARIA 2.0 × Priority Qualified (−2,454) |
+| `pronostico_over30_3mob` | 60,678 cohortes, de 202609 a 202612; quedan fuera 3,567 sin 3 MOB contiguos al final |
+
+En las filas nuevas, la banda cubre 94.6% en NCL y 92.7% en Over30: más que el 90% nominal, pero
+dentro del 85–95% que exige la promoción. En DARIA casi no hay filas fuera (1.1% y 2.4%), porque
+su desplazamiento CQR es mucho mayor que el de Recalibration. Una explicación probable es el
+horizonte: la CQR se calibró con errores de 1 a 6 meses después de cada origen, y las filas nuevas
+están a 1 mes de lo que vio el modelo. El backtest no guarda la cobertura por horizonte, así que
+esto no está medido.

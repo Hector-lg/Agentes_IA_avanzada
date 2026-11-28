@@ -7,4 +7,5 @@
 - `entrenar`: datos, 9 modelos cuantílicos + M4, bundle, promoción a champion y CLI.
 - `backtest`: validación con origen móvil y calibración CQR (`calibracion`).
 - `bundle`: clase `MPDC` para cargar una versión y predecir; `ficha`: ficha del modelo.
+- `puntuar`: scoring del corte con el champion, salidas para E3, E5, E6 y dashboards, y CLI.
 """

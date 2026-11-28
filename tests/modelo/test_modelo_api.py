@@ -1,4 +1,4 @@
-"""Entrenamiento → bundle versionado → champion, sobre el cubo de prueba (pocos árboles)."""
+"""Entrenamiento → bundle versionado → champion → scoring del corte, sobre el cubo de prueba."""
 
 from __future__ import annotations
 
@@ -6,18 +6,24 @@ import json
 import shutil
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from basecards.modelo.bundle import (
     MPDC,
     acotar,
     cargar_mpdc,
+    sha256,
     verificar_bundle,
     version_champion,
 )
-from basecards.modelo.config import cargar_config
+from basecards.modelo.config import LLAVE_COHORTE, LLAVE_FILA, cargar_config
 from basecards.modelo.entrenar import decidir_promocion, main
 from basecards.modelo.features import agregar_rezagos_over30, construir_tabla
+from basecards.modelo.puntuar import desviacion_normalizada, puntuar
+from basecards.modelo.puntuar import main as main_puntuar
+from basecards.soporte.predicciones.esquema import validar_esquema_predicciones
+from basecards.soporte.reglas.k_reglas import evaluar_k01
 
 OBJETIVOS = {"tasa_ncl", "tasa_over30", "margen_por_cuenta"}
 
@@ -122,3 +128,118 @@ def test_cli_rechaza_corte_inexistente(tmp_path, capsys):
 def test_cargar_version_inexistente(tmp_path, version):
     with pytest.raises(FileNotFoundError):
         cargar_mpdc(version, tmp_path)
+
+
+# --------------------------------------------------------------------------------------------
+# Scoring del corte (issue #9)
+# --------------------------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+def puntuado(modelo_entrenado, tmp_path_factory):
+    _, dir_modelos, dir_cortes = modelo_entrenado
+    salida = tmp_path_factory.mktemp("predicciones")
+    evento = puntuar(202609, dir_cortes=dir_cortes, dir_modelos=dir_modelos, dir_salida=salida)
+    return evento, salida / "202609"
+
+
+def test_desviacion_normalizada():
+    banda = np.array([[1.0, 2.0, 4.0]] * 7 + [[0.0, 0.0, 0.0]] * 2)
+    obs = np.array([2.0, 3.0, 4.0, 6.0, 1.5, 0.0, np.nan, 0.0, 0.1])
+    d = desviacion_normalizada(obs, banda)
+    assert np.allclose(d[:6], [0.0, 0.5, 1.0, 2.0, 0.5, 2.0]) and np.isnan(d[6])
+    assert d[7] == 0.0 and d[8] == 99.0  # banda de ancho 0
+
+
+def test_predicciones_cumplen_contrato_e3(puntuado, cubo):
+    evento, d = puntuado
+    pred = pd.read_parquet(d / "predicciones.parquet")
+    validar_esquema_predicciones(pred)
+    assert set(pred["indicador"]) == {"tasa_ncl", "tasa_over30"}  # config/predicciones.yaml
+    assert len(pred) == 2 * len(cubo) and not pred.duplicated([*LLAVE_FILA, "indicador"]).any()
+    assert (pred["q05"] <= pred["q50"]).all() and (pred["q50"] <= pred["q95"]).all()
+    obs = pred["observado"]
+    assert (pred["fuera_de_intervalo"] == ((obs < pred["q05"]) | (obs > pred["q95"]))).all()
+    assert (pred.loc[pred["fuera_de_intervalo"], "desviacion"] >= 1).all()
+    assert (pred.loc[~pred["fuera_de_intervalo"], "desviacion"].dropna() <= 1).all()
+    nuevas = pred["PERF_MONTH"] == 202609
+    assert (pred["fuera_de_tiempo"] == nuevas).all() and nuevas.any()
+    drivers = pred[["driver_1", "driver_2", "driver_3", "contribucion_1"]]
+    assert drivers[nuevas].notna().all().all()
+    k01 = pred["fuera_de_intervalo"] & (pred["enraccts"] >= 200)
+    assert drivers[~nuevas & ~k01].isna().all().all()
+    assert (pred["modelo_nombre"] == "mpdc").all()
+    assert (pred["modelo_version"] == evento["version_modelo"]).all()
+    r = evento["resumen"]
+    assert r["filas_cohorte_mob"] == len(cubo) and r["filas_fuera_de_tiempo"] == nuevas.sum() / 2
+
+
+def test_k01_lee_las_predicciones(puntuado):
+    """El Agente de Soporte arma un hallazgo K-01 por cohorte × indicador fuera de intervalo."""
+    _, d = puntuado
+    pred = pd.read_parquet(d / "predicciones.parquet")
+    hallazgos = evaluar_k01(pred, pred_cfg={"enraccts_min": 200, "umbral_monto_critico": 5e4})
+    candidatas = pred[pred["fuera_de_intervalo"] & (pred["enraccts"] >= 200)]
+    assert len(hallazgos) == candidatas.groupby([*LLAVE_COHORTE, "indicador"]).ngroups > 0
+    for h in hallazgos:
+        assert h.detalle["modelo"]["nombre"] == "mpdc" and all(h.detalle["drivers"])
+
+
+def test_evento_y_salidas_para_dashboards(puntuado, cubo):
+    evento, d = puntuado
+    disco = json.loads((d / "evento_predicciones_listas.json").read_text(encoding="utf-8"))
+    assert disco["evento"] == "predicciones_listas" and disco["corte_id"] == 202609
+    assert disco["version_modelo"] == evento["version_modelo"] == 1
+    assert len(disco["archivos"]) == 4
+    for nombre, info in disco["archivos"].items():
+        assert sha256(d / nombre) == info["sha256"]
+        assert len(pd.read_parquet(d / nombre)) == info["filas"]
+
+    n_coh = cubo.drop_duplicates(LLAVE_COHORTE).shape[0]
+    coh = pd.read_parquet(d / "cohortes_horizonte.parquet")
+    assert len(coh) == n_coh and (coh["MOB"] == 12).all()
+    assert set(coh["nivel_riesgo"]) <= {"bajo", "medio", "alto", "critico"}
+    rk = pd.read_parquet(d / "ranking_estrategias.parquet")
+    assert list(rk["ranking"]) == list(range(1, len(rk) + 1))
+    assert rk["margen_por_cuenta_q50"].is_monotonic_decreasing
+    assert rk["cohortes"].sum() == n_coh
+    assert not rk.duplicated(["STRATEGY", "STRATEGY_SEGMENT"]).any()
+    primero = rk.iloc[0]
+    g = coh[coh["STRATEGY"] == primero["STRATEGY"]]
+    g = g[g["STRATEGY_SEGMENT"] == primero["STRATEGY_SEGMENT"]]
+    esperado = (g["margen_por_cuenta_q50"] * g["ACCOUNTS_0"]).sum() / g["ACCOUNTS_0"].sum()
+    assert np.isclose(primero["margen_por_cuenta_q50"], esperado)  # promedio por cuentas
+    m4 = pd.read_parquet(d / "pronostico_over30_3mob.parquet")
+    assert 0 < len(m4) <= n_coh and not m4.duplicated(LLAVE_COHORTE).any()
+    assert (m4["MOB_OBJETIVO"] == m4["MOB_ULTIMO"] + 3).all()
+    banda = m4[["tasa_over30_q05", "tasa_over30_q50", "tasa_over30_q95"]].to_numpy()
+    assert (np.diff(banda, axis=1) >= 0).all() and (banda >= 0).all() and (banda <= 1).all()
+
+
+def test_puntuar_rechaza_bundle_alterado(modelo_entrenado, tmp_path, capsys):
+    res, _, dir_cortes = modelo_entrenado
+    copia = tmp_path / "modelos"
+    shutil.copytree(res.ruta, copia / res.ruta.name)
+    (copia / "champion.json").write_text(json.dumps({"version": res.version}), encoding="utf-8")
+    with (copia / res.ruta.name / "modelos" / "tasa_ncl_q50.txt").open("a", encoding="utf-8") as f:
+        f.write("\n# alterado\n")
+    args = ["--dir-cortes", str(dir_cortes), "--dir-modelos", str(copia)]
+    assert main_puntuar([*args, "--dir-salida", str(tmp_path / "salida")]) == 2
+    assert "integridad" in capsys.readouterr().err
+    assert not (tmp_path / "salida").exists()  # con un modelo alterado no se escribe nada
+
+
+def test_cli_puntuar_y_corte_no_apto(modelo_entrenado, tmp_path, capsys):
+    _, dir_modelos, dir_cortes = modelo_entrenado
+    cortes = tmp_path / "cortes"
+    shutil.copytree(dir_cortes, cortes)
+    manifiesto = cortes / "202609" / "manifest.json"
+    m = json.loads(manifiesto.read_text(encoding="utf-8"))
+    m["validacion"] = {"dictamen": "no apto"}
+    manifiesto.write_text(json.dumps(m), encoding="utf-8")
+    args = ["--corte", "202609", "--dir-cortes", str(cortes), "--dir-modelos", str(dir_modelos)]
+    args += ["--dir-salida", str(tmp_path / "salida")]
+    assert main_puntuar(args) == 2 and "no apto" in capsys.readouterr().err
+    assert not (tmp_path / "salida").exists()
+    assert main_puntuar([*args, "--forzar"]) == 0
+    resumen = json.loads(capsys.readouterr().out)
+    assert resumen["corte"] == 202609 and resumen["indicadores"] == ["tasa_ncl", "tasa_over30"]
+    assert (tmp_path / "salida" / "202609" / "evento_predicciones_listas.json").exists()

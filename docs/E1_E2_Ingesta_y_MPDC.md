@@ -16,6 +16,9 @@ python -m basecards.ingesta --csv "ruta\base_cards_sintetica.csv" --corte 202609
 
 # E2 — Backtest del MPDC con origen móvil (--rapido: 20% de las cohortes)
 python -m basecards.modelo.backtest --corte 202609 --rapido --salida backtest_202609.json
+
+# E2 — Entrenamiento completo: backtest + CQR + modelos finales + bundle + MLflow
+python -m basecards.modelo.entrenar --corte 202609
 ```
 
 En Linux es igual (`source .venv/bin/activate`). `data/` no se versiona: el CSV y el Parquet
@@ -26,6 +29,7 @@ viven solo en cada máquina.
 | Ingesta (sin validación) | 7–11 s para 1,089,833 filas (193.5 MB CSV → 37.3 MB Parquet zstd) |
 | Validación E1 del Agente de Soporte (`--validar`) | ~90 s, dictamen `apto`; ~35 s son de P-07, que corre desde que `acumulado: true` (issue #5) |
 | Backtest `--rapido` (20% de cohortes, 600 árboles, 4 orígenes × 9 modelos) | ~4 min |
+| Entrenamiento completo (`entrenar`): backtest ~26 min + modelos finales ~16 min + MLflow | ~42 min |
 
 ## 2. E1 — Ingesta (`src/basecards/ingesta/`, issue #4)
 
@@ -179,3 +183,73 @@ Resultado con el corte 202609 en modo `--rapido` (12,492 cohortes, 205,101 filas
 - El ranking estrategia × segmento por margen predicho coincide con el observado: Spearman 0.991.
 - La banda cruda cubre ~84%, por debajo del 90% que pide el PRD. La calibración CQR del issue #8
   usa los residuos de este backtest para corregirla.
+
+## 5. E2 — Calibración, modelo versionado y registro (issue #8)
+
+### 5.1 Calibración CQR y modelo M4
+
+- **CQR** (`calibracion.py`, Romano et al., 2019): con los residuos fuera de tiempo del backtest
+  calcula un desplazamiento Q por tramo de MOB (`0–3`, `4–12`, `13+`), y por familia × tramo
+  cuando hay al menos 500 residuos. La banda final es [q05 − Q, q95 + Q] y nunca excluye a q50.
+  La cobertura se mide **calibrando sin el origen que se evalúa**, así que no es optimista.
+- **M4**: tasa Over30 3 MOB adelante a partir de sus valores en t, t−1 y t−2 y su pendiente
+  (LightGBM con pérdida L1). Su intervalo sale de los cuantiles 5 y 95 de sus errores en el
+  backtest, por tramo de MOB.
+
+### 5.2 Bundle versionado, ficha del modelo y champion
+
+`python -m basecards.modelo.entrenar --corte 202609` deja en `artefactos/modelos/mpdc/`:
+
+| Archivo | Contenido |
+|---|---|
+| `v{N}/modelos/*.txt` | 9 modelos cuantílicos y M4 en formato texto de LightGBM |
+| `v{N}/bundle.json` | categorías, Q de CQR, umbrales de riesgo, métricas, datos del corte y SHA-256 de cada modelo |
+| `v{N}/backtest.json` | detalle del backtest por origen |
+| `v{N}/model_card.md` | ficha del modelo con estructura SR 11-7 |
+| `champion.json` | la versión vigente y por qué se promovió |
+
+La clase `MPDC` (`bundle.py`) carga una versión y predice la banda calibrada, acotada a rangos
+válidos (NCL ≥ 0, Over30 entre 0 y 1). También da los 3 drivers de cada predicción (TreeSHAP), el
+pronóstico M4 y el nivel de riesgo. `verificar_bundle` revisa los SHA-256 sin cargar los modelos.
+
+**Promoción (Manual §5.3).** Una versión nueva pasa a `champion` solo si su cobertura CQR queda en
+85–95% en los 3 indicadores **y** mejora la pinball q50 del champion actual. Si no, se queda el
+anterior y la ficha dice por qué.
+
+### 5.3 Registro en MLflow
+
+Cada entrenamiento crea un run en el experimento `mpdc` con el hash del corte, el dictamen E1, los
+parámetros, las métricas del backtest y la ficha. El modelo pyfunc `mpdc` queda en el Model
+Registry y, si se promovió, con alias `champion`:
+
+```python
+import mlflow
+modelo = mlflow.pyfunc.load_model("models:/mpdc@champion")
+modelo.predict(cohortes)  # llave de cohorte + MOB + ACCOUNTS_0, CREDITLINESAMTS_0, ENRAMTS_0
+```
+
+Tracking local: `mlflow.db` y `mlartifacts/` en la raíz del repo, sin versionar en git. Para ver la
+UI: `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Con `--sin-mlflow` no se registra.
+
+### 5.4 Entrenamiento completo del corte 202609
+
+Corte apto en la validación E1; entrenado con PERF_MONTH ≤ 202608: 1,025,588 filas y 62,471
+cohortes. Se excluyen las 64,245 filas del mes del corte y ninguna por R-14, R-15, nulos o
+exposición. Duración: ~42 min. Resultado: **v1, promovido a `champion`**.
+
+| Indicador | Mejora pinball q50 vs curva | vs árbol | Cobertura 5–95 cruda | Cobertura CQR | CQR DARIA / Reca |
+|---|---|---|---|---|---|
+| `tasa_ncl` | +70.6% | +26.2% | 85.6% | **89.7%** | 88.8% / 89.8% |
+| `tasa_over30` | +66.5% | +29.5% | 87.2% | **89.9%** | 90.7% / 90.0% |
+| `margen_por_cuenta` | +69.4% | +50.9% | 85.8% | **89.9%** | 90.9% / 89.9% |
+
+- La CQR deja la cobertura en ~90% en los 3 indicadores y en las dos familias, dentro del 85–95%
+  que exige la promoción.
+- Ranking estrategia × segmento por margen: Spearman **0.992**.
+- **M4** (Over30 a 3 MOB): MAPE agregado por estrategia × cosecha × MOB de **1.7%** (el KPI pide
+  ≤ 15%), WAPE por celda de 7.3%.
+- Umbrales del nivel de riesgo, como tasa NCL esperada a MOB 12: medio ≥ 0.075, alto ≥ 0.128,
+  crítico ≥ 0.231.
+- `mlflow.pyfunc.load_model("models:/mpdc@champion")` carga y predice. Por ejemplo, en tres
+  cohortes de Recalibration 1.0 a MOB 12, la tasa NCL esperada es 0.177 (score 141–150), 0.119
+  (151–160) y 0.085 (161–170).
